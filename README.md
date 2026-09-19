@@ -1,4 +1,4 @@
-# Nebula
+# Cobalt
 
 Tampermonkey userscript that bypasses link shortener walls. Still in beta.
 

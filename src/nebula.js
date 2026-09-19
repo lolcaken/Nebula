@@ -29,8 +29,8 @@
         if (!isLootDomain(HOST) && HOST.indexOf('rekonise.com') === -1 && HOST.indexOf('lockr.') === -1 && !IS_SHORTFLY && HOST.indexOf('bstshrt.com') === -1 && HOST.indexOf('linkvertise.com') === -1 && !IS_OUO && !IS_S4U && !IS_BOOST && !IS_DLINK && !IS_ONESHORT) return;
         if (window.innerWidth <= 1 && window.innerHeight <= 1) return;
     }
-    if (window.__nebula_lb_active) return;
-    window.__nebula_lb_active = true;
+    if (window.__cobalt_lb_active) return;
+    window.__cobalt_lb_active = true;
 
     (function () {
         function guard(ev) {
@@ -235,7 +235,7 @@
         var box = el('div');
         box.id = 'az-box';
 
-        var title = el('div'); title.id = 'az-title'; title.textContent = 'Nebula';
+        var title = el('div'); title.id = 'az-title'; title.textContent = 'Cobalt';
         var status = el('div'); status.id = 'az-status';
         var spin = el('div'); spin.id = 'az-spin';
         var actions = el('div'); actions.id = 'az-actions';
