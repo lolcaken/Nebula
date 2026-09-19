@@ -17,17 +17,20 @@
     var IS_REKONISE = HOST.indexOf('rekonise.com') !== -1;
     var IS_LOCKR = HOST.indexOf('lockr.') !== -1;
     var IS_SHORTFLY = HOST.indexOf('shrtslug.biz') !== -1 || HOST.indexOf('biovetro.net') !== -1 || HOST.indexOf('technons.com') !== -1 || HOST.indexOf('yrtourguide.com') !== -1 || HOST.indexOf('tournguide.com') !== -1;
-    var IS_BSTSHRT = HOST.indexOf('bstshrt.com') !== -1;
+    var IS_BSTSHRT = HOST.indexOf('bstshrt.com') !== -1 || HOST.indexOf('bst.gg') !== -1 || HOST.indexOf('booo.st') !== -1 || HOST.indexOf('mboost.me') !== -1;
     var IS_LINKVERTISE = HOST.indexOf('linkvertise.com') !== -1;
     var IS_OUO = HOST.indexOf('ouo.io') !== -1 || HOST.indexOf('ouo.press') !== -1;
-    var IS_S4U = HOST.indexOf('sub4unlock') !== -1 || HOST.indexOf('subfinal.com') !== -1 || HOST.indexOf('sub2unlock') !== -1 || HOST.indexOf('ytsubme') !== -1;
+    var IS_S4U = HOST.indexOf('sub4unlock') !== -1 || HOST.indexOf('subfinal.com') !== -1 || HOST.indexOf('sub2unlock') !== -1 || HOST.indexOf('sub2get.com') !== -1 || HOST.indexOf('ytsubme') !== -1 || HOST.indexOf('unlocknow.net') !== -1;
+    var IS_SOCIAL = HOST.indexOf('paster.so') !== -1 || HOST.indexOf('paster.gg') !== -1 || HOST.indexOf('social-unlock.com') !== -1 || HOST.indexOf('socialwolvez.com') !== -1;
+    var IS_CUTY = HOST.indexOf('cuty.io') !== -1 || HOST.indexOf('cety.io') !== -1;
+    var IS_ADFOC = HOST.indexOf('adfoc.us') !== -1;
     var IS_BOOST = HOST.indexOf('boost.ink') !== -1;
     var IS_DLINK = HOST.indexOf('clictune.com') !== -1 || HOST.indexOf('dlink') !== -1;
     var IS_ONESHORT = HOST.indexOf('1shortlink.com') !== -1 || HOST.indexOf('1short.io') !== -1 || HOST.indexOf('link1s.com') !== -1;
-    var IS_WALLGROUP = HOST.indexOf('gplinks.com') !== -1 || HOST.indexOf('uskip.cc') !== -1 || HOST.indexOf('techshort.in') !== -1 || HOST.indexOf('boostme.live') !== -1 || HOST.indexOf('shrinkme.io') !== -1;
-    if (!IS_LOOTLABS && !IS_REKONISE && !IS_LOCKR && !IS_SHORTFLY && !IS_BSTSHRT && !IS_LINKVERTISE && !IS_OUO && !IS_S4U && !IS_BOOST && !IS_DLINK && !IS_ONESHORT && !IS_WALLGROUP) return;
+    var IS_WALLGROUP = HOST.indexOf('gplinks.com') !== -1 || HOST.indexOf('uskip.cc') !== -1 || HOST.indexOf('techshort.in') !== -1 || HOST.indexOf('boostme.live') !== -1 || HOST.indexOf('shrinkme.io') !== -1 || HOST.indexOf('mendationforc.info') !== -1;
+    if (!IS_LOOTLABS && !IS_REKONISE && !IS_LOCKR && !IS_SHORTFLY && !IS_BSTSHRT && !IS_LINKVERTISE && !IS_OUO && !IS_S4U && !IS_SOCIAL && !IS_CUTY && !IS_ADFOC && !IS_BOOST && !IS_DLINK && !IS_ONESHORT && !IS_WALLGROUP) return;
     if (window.self !== window.top) {
-        if (!isLootDomain(HOST) && HOST.indexOf('rekonise.com') === -1 && HOST.indexOf('lockr.') === -1 && !IS_SHORTFLY && HOST.indexOf('bstshrt.com') === -1 && HOST.indexOf('linkvertise.com') === -1 && !IS_OUO && !IS_S4U && !IS_BOOST && !IS_DLINK && !IS_ONESHORT && !IS_WALLGROUP) return;
+        if (!isLootDomain(HOST) && HOST.indexOf('rekonise.com') === -1 && HOST.indexOf('lockr.') === -1 && !IS_SHORTFLY && HOST.indexOf('bstshrt.com') === -1 && HOST.indexOf('linkvertise.com') === -1 && !IS_OUO && !IS_S4U && !IS_SOCIAL && !IS_CUTY && !IS_ADFOC && !IS_BOOST && !IS_DLINK && !IS_ONESHORT && !IS_WALLGROUP) return;
         if (window.innerWidth <= 1 && window.innerHeight <= 1) return;
     }
     if (window.__cobalt_lb_active) return;
@@ -72,7 +75,7 @@
     function el(tag){return document.createElement(tag)}
     function ts(){return (new Date()).getTime()}
 
-    var state = { url: location.href, hostname: location.hostname, domain: IS_LOCKR ? 'lockr' : (IS_REKONISE ? 'rekonise' : (IS_BSTSHRT ? 'bstshrt' : (IS_LINKVERTISE ? 'linkvertise' : (IS_OUO ? 'ouo' : (IS_S4U ? 'sub4unlock' : (IS_BOOST ? 'boost' : (IS_DLINK ? 'dlink' : (IS_ONESHORT ? '1shortlink' : (IS_WALLGROUP ? 'wall' : 'lootlabs'))))))))), sessionId: Math.random().toString(36).slice(2, 15), scriptVersion: '1.0.0', startedAt: (new Date()).toISOString() };
+    var state = { url: location.href, hostname: location.hostname, domain: IS_LOCKR ? 'lockr' : (IS_REKONISE ? 'rekonise' : (IS_BSTSHRT ? 'bstshrt' : (IS_LINKVERTISE ? 'linkvertise' : (IS_OUO ? 'ouo' : (IS_S4U ? 'sub4unlock' : (IS_SOCIAL ? 'social' : (IS_CUTY ? 'cuty' : (IS_ADFOC ? 'adfoc' : (IS_BOOST ? 'boost' : (IS_DLINK ? 'dlink' : (IS_ONESHORT ? '1shortlink' : (IS_WALLGROUP ? 'wall' : 'lootlabs')))))))))))), sessionId: Math.random().toString(36).slice(2, 15), scriptVersion: '1.0.0', startedAt: (new Date()).toISOString() };
     function log(k,v){try{state[k]=v}catch(e){}}
 
     function lapse(ms){return new Promise(function(res){setTimeout(res,ms)})}
@@ -1454,6 +1457,59 @@ function showText(t) {
         });
     }
 
+    /* cuty.io / cety.io */
+    function cutyMain() {
+        if (location.pathname === '/' || location.pathname === '') return;
+        buildUI();
+        startTimer();
+        startWait(function () {
+            setStatus('Skipping countdown...');
+            var navUrl = location.href;
+            var iv = setInterval(function () {
+                try {
+                    var b = document.querySelector('#getButton, #btn1, a#go, button[type="submit"], input[type="submit"]');
+                    if (b && !b.getAttribute('data-az-done')) { b.setAttribute('data-az-done', '1'); if (b.click) b.click(); }
+                } catch (e) {}
+                if (location.href !== navUrl) { clearInterval(iv); }
+            }, 400);
+            setTimeout(function () { clearInterval(iv); failUI('Could not skip. Please refresh.'); }, 15000);
+        });
+    }
+
+    /* adfoc.us */
+    function adfocMain() {
+        var dd = null;
+        try { dd = new URL(location.href).searchParams.get('d'); } catch (e) {}
+        buildUI();
+        startTimer();
+        startWait(function () {
+            if (dd) {
+                var b64 = String(dd).replace(/[^A-Za-z0-9+/=]/g, '');
+                while (b64.length % 4) b64 += '=';
+                var decoded = null;
+                try { decoded = decodeURIComponent(atob(b64)); } catch (e) {}
+                if (decoded && /^https?:\/\//i.test(decoded)) {
+                    stopTimer(); log('adfoc_dest', decoded);
+                    return void Se(decoded);
+                }
+            }
+            setStatus('Reading destination...');
+            var iv = setInterval(function () {
+                try {
+                    var t = document.querySelector('a#dest[href], input#dest[value], a[href^="http"][target="_blank"]');
+                    if (t) {
+                        var u = t.href || t.value || '';
+                        if (/^https?:\/\//i.test(u) && u.indexOf(location.hostname) === -1) {
+                            clearInterval(iv); stopTimer(); log('adfoc_dest', u);
+                            return void Se(u);
+                        }
+                    }
+                } catch (e) {}
+            }, 500);
+            setTimeout(function () { clearInterval(iv); failUI('Could not read destination. Please refresh.'); }, 15000);
+        });
+    }
+
     if (IS_REKONISE) return void rekoniseMain();
     if (IS_LOCKR) return void lokrMain();
     if (IS_SHORTFLY) return void shortflyMain();
@@ -1464,6 +1520,9 @@ function showText(t) {
     if (IS_BOOST) return void boostMain();
     if (IS_DLINK) return void dlinkMain();
     if (IS_ONESHORT) return void oneShortMain();
+    if (IS_CUTY) return void cutyMain();
+    if (IS_ADFOC) return void adfocMain();
+    if (IS_SOCIAL) return void s4uMain();
     if (IS_WALLGROUP) return void wallMain();
 
     
