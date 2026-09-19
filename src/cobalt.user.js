@@ -192,7 +192,7 @@
     }
 
     
-    var ui = {}, primaryAction = null, accentColor = '#8b5cf6', lastStatus = null, lastPrimary = null, wdTimer = null;
+    var ui = {}, primaryAction = null, accentColor = '#8b5cf6', lastStatus = null, lastPrimary = null, lastText = null, wdTimer = null;
     function setStatus(msg) {
         lastStatus = msg;
         var st = (ui.status && ui.status.isConnected) ? ui.status : q('az-status');
@@ -242,7 +242,7 @@
             }, 50);
             return;
         }
-        var rSt = lastStatus, rPri = lastPrimary;
+        var rSt = lastStatus, rPri = lastPrimary, rTb = lastText;
         accentColor = te().accentColor || '#8b5cf6';
         var rgb = parseHex(accentColor);
         var rgbStr = rgb.join(',');
@@ -274,6 +274,7 @@
             '.az-btn.az-btn-ghost:hover{color:#ffffff}',
             '#az-time{font-size:13px;color:#4d4d4d;font-variant-numeric:tabular-nums;letter-spacing:0.04em;pointer-events:none}',
 '#az-time-wrap{padding:6px 14px;border-radius:999px;background:rgba(255,255,255,0.04);border:1px solid #222222}',
+            '#az-textbox{display:none;width:100%;min-height:110px;max-height:200px;background:#1a1a1a;color:#e6e6e6;border:1px solid #3a3a3a;border-radius:10px;padding:10px;font:inherit;font-size:13px;line-height:1.5;resize:vertical;overflow:auto;text-align:left}',
             '#az-widget{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999990;width:420px;height:320px;max-width:calc(100vw - 40px);max-height:calc(100vh - 40px);background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.55);pointer-events:auto}',
             '#az-widget iframe{width:100%;height:100%;border:0;display:block}',
             '@media (prefers-reduced-motion:reduce){#az-spin{animation-duration:1.6s}}'
@@ -299,6 +300,7 @@
         var title = el('div'); title.id = 'az-title'; title.textContent = 'Cobalt';
         var status = el('div'); status.id = 'az-status';
         var spin = el('div'); spin.id = 'az-spin';
+        var tb = el('textarea'); tb.id = 'az-textbox'; tb.readOnly = true;
         var actions = el('div'); actions.id = 'az-actions';
         var primary = el('button'); primary.id = 'az-primary'; primary.type = 'button'; primary.className = 'az-btn';
         var refresh = el('button'); refresh.id = 'az-refresh'; refresh.type = 'button'; refresh.className = 'az-btn az-btn-ghost'; refresh.textContent = 'Refresh';
@@ -312,6 +314,7 @@
         box.appendChild(title);
         box.appendChild(status);
         box.appendChild(spin);
+        box.appendChild(tb);
         box.appendChild(actions);
         box.appendChild(timeWrap);
         root.appendChild(bg);
@@ -319,7 +322,7 @@
         document.body.appendChild(root);
 
         ui.root = root; ui.box = box; ui.title = title; ui.status = status;
-        ui.spin = spin;
+        ui.spin = spin; ui.tb = tb;
         ui.actions = actions; ui.primary = primary; ui.refresh = refresh; ui.time = timel;
 
         setStatus(null);
@@ -340,6 +343,7 @@
 
         if (rSt !== null) setStatus(rSt);
         if (rPri !== null) setPrimary(rPri.label, rPri.action);
+        if (rTb) { var tbx = q('az-textbox'); if (tbx) { tbx.value = rTb; tbx.style.display = 'block'; ui.tb = tbx; } }
         if (!wdTimer) wdTimer = setInterval(function () {
             var r = q('az-ui');
             if (!r || !r.isConnected) buildUI();
@@ -353,19 +357,28 @@
         setRefresh(true);
     }
 
+function showText(t) {
+        var tb = (ui.tb && ui.tb.isConnected) ? ui.tb : q('az-textbox');
+        if (!tb) { buildUI(); tb = q('az-textbox'); }
+        lastText = t;
+        if (tb) { ui.tb = tb; tb.value = t; tb.style.display = 'block'; }
+    }
+
     function Se(dest) {
         stopTimer();
         setSpinner(false);
         setRefresh(false);
         var isUrl = /^https?:\/\//i.test(dest);
         setStatus(isUrl ? 'Bypass completed!' : 'Content copied to clipboard!');
-setPrimary(isUrl ? 'Open Destination' : 'Copy Content', function () {
+        if (!isUrl) showText(dest);
+        setPrimary(isUrl ? 'Open Destination' : 'Copy Content', function () {
             if (isUrl) {
                 if (!isTop()) { try { window.top.postMessage({ azl: true, url: dest }, '*'); } catch (e) {} }
                 if (te().openNewTab) window.open(dest, '_blank', 'noopener');
                 else window.location.href = dest;
             } else {
-                setPrimary('Copy Content', function () { copyLink(dest); setPrimary('Copied!', function () {}); });
+                copyLink(dest);
+                setPrimary('Copied!', function () {});
             }
         });
     }
