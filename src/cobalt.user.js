@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cobalt
 // @namespace    https://tampermonkey.net/
-// @version      1.0.4
+// @version      1.0.5
 // @description  Bypass locked links with simple click!
 // @author       wrex
 // @downloadURL  https://lolcaken.github.io/cobalt/src/cobalt.user.js
