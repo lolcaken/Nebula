@@ -1,6 +1,6 @@
 # Nebula
 
-Tampermonkey userscript that bypasses link shortener walls.
+Tampermonkey userscript that bypasses link shortener walls. Still in beta.
 
 Install `src/user.js`. Plain source in `src/nebula.js`.
 
