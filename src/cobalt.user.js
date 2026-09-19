@@ -67,7 +67,6 @@
 // @match        https://socialwolvez.com/*
 // @match        https://sub2get.com/*
 // @match        https://sub2unlock.net/*
-// @match        https://unlocknow.net/*
 // @match        https://mendationforc.info/*
 // @run-at       document-start
 // @grant        GM_getValue
@@ -101,7 +100,7 @@
     var IS_BSTSHRT = HOST.indexOf('bstshrt.com') !== -1 || HOST.indexOf('bst.gg') !== -1 || HOST.indexOf('booo.st') !== -1 || HOST.indexOf('mboost.me') !== -1;
     var IS_LINKVERTISE = HOST.indexOf('linkvertise.com') !== -1;
     var IS_OUO = HOST.indexOf('ouo.io') !== -1 || HOST.indexOf('ouo.press') !== -1;
-    var IS_S4U = HOST.indexOf('sub4unlock') !== -1 || HOST.indexOf('subfinal.com') !== -1 || HOST.indexOf('sub2unlock') !== -1 || HOST.indexOf('sub2get.com') !== -1 || HOST.indexOf('ytsubme') !== -1 || HOST.indexOf('unlocknow.net') !== -1;
+    var IS_S4U = HOST.indexOf('sub4unlock') !== -1 || HOST.indexOf('subfinal.com') !== -1 || HOST.indexOf('sub2unlock') !== -1 || HOST.indexOf('sub2get.com') !== -1 || HOST.indexOf('ytsubme') !== -1;
     var IS_SOCIAL = HOST.indexOf('paster.so') !== -1 || HOST.indexOf('paster.gg') !== -1 || HOST.indexOf('social-unlock.com') !== -1 || HOST.indexOf('socialwolvez.com') !== -1;
     var IS_CUTY = HOST.indexOf('cuty.io') !== -1 || HOST.indexOf('cety.io') !== -1;
     var IS_ADFOC = HOST.indexOf('adfoc.us') !== -1;
