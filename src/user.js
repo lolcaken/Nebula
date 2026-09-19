@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nebula
 // @namespace    https://tampermonkey.net/
-// @version      1.3.0
+// @version      1.0.0
 // @description  Bypass locked links with simple click!
 // @author       wrex
 // @downloadURL  https://azure.vercel.app/azure.user.js
