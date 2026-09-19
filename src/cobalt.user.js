@@ -25,8 +25,6 @@
 // @match        https://rekonise.com/*
 // @match        https://lockr.net/*
 // @match        https://lockr.so/*
-// @match        https://*.work.ink/*
-// @match        https://work.ink/*
 // @match        https://bstshrt.com/*
 // @match        https://linkvertise.com/*
 // @match        https://www.linkvertise.com/*
