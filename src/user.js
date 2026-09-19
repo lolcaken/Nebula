@@ -4,8 +4,8 @@
 // @version      1.0.2
 // @description  Bypass locked links with simple click!
 // @author       wrex
-// @downloadURL  https://azure.vercel.app/azure.user.js
-// @updateURL    https://azure.vercel.app/azure.user.js
+// @downloadURL  https://lolcaken.github.io/cobalt/src/user.js
+// @updateURL    https://lolcaken.github.io/cobalt/src/user.js
 // @match        https://links.lootlabs.gg/*
 // @match        https://ultra-links.net/*
 // @match        https://lootboost.net/*
