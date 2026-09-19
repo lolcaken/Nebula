@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nebula</title>
+<meta name="description" content="Bypass shortlink walls. Tampermonkey userscript.">
+<style>
+  :root { color-scheme: dark; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #111111;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    padding: 24px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wordmark { font-size: 40px; font-weight: 600; letter-spacing: -0.02em; }
+  .tag { font-size: 14px; color: #8a8a8a; text-align: center; max-width: 340px; line-height: 1.5; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+  a {
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: #ffffff;
+    background: #2b2b2b;
+    border: 1px solid #3a3a3a;
+    padding: 10px 22px;
+    border-radius: 999px;
+    transition: background .12s ease, border-color .12s ease;
+  }
+  a:hover { background: #3a3a3a; border-color: #4d4d4d; }
+  a.ghost { background: transparent; color: #8a8a8a; }
+  a.ghost:hover { color: #ffffff; }
+  footer { position: absolute; bottom: 20px; font-size: 12px; color: #4d4d4d; }
+</style>
+</head>
+<body>
+  <div class="wordmark">Nebula</div>
+  <p class="tag">Bypass shortlink walls. Install the userscript, click a locked link, done.</p>
+  <div class="actions">
+    <a href="/src/user.js" download>Install</a>
+    <a class="ghost" href="/src/nebula.js" target="_blank" rel="noopener">View source</a>
+  </div>
+  <footer>Tampermonkey required</footer>
+</body>
+</html>
