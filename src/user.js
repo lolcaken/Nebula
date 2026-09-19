@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nebula
 // @namespace    https://tampermonkey.net/
-// @version      1.0.0
+// @version      1.0.1
 // @description  Bypass locked links with simple click!
 // @author       wrex
 // @downloadURL  https://azure.vercel.app/azure.user.js
@@ -261,31 +261,24 @@
         css.textContent = [
             '#az-ui,#az-ui *{font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-user-select:auto;user-select:auto}',
             '@keyframes az-spin{to{transform:rotate(360deg)}}',
-            '@keyframes az-aurora1{0%{transform:translate(0,0) scale(1);opacity:.5}50%{transform:translate(70px,-50px) scale(1.25);opacity:.8}100%{transform:translate(0,0) scale(1);opacity:.5}}',
-            '@keyframes az-aurora2{0%{transform:translate(0,0) scale(1);opacity:.4}50%{transform:translate(-80px,60px) scale(1.3);opacity:.7}100%{transform:translate(0,0) scale(1);opacity:.4}}',
-            '@keyframes az-aurora3{0%{transform:translate(0,0) scale(1.2);opacity:.3}50%{transform:translate(50px,70px) scale(.8);opacity:.55}100%{transform:translate(0,0) scale(1.2);opacity:.3}}',
-            '#az-ui{position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;display:flex;align-items:center;justify-content:center;background:linear-gradient(150deg,#140b26 0%,#241353 45%,#3a1666 100%);color:#fff;overflow:hidden}',
-            '#az-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}',
-            '#az-bg-pattern{position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.05) 1px,transparent 1px);background-size:30px 30px;opacity:.6}',
-            '.az-blob{position:absolute;border-radius:50%;filter:blur(90px);will-change:transform}',
-            '#az-blob-1{width:540px;height:540px;left:-170px;top:-190px;background:radial-gradient(circle,#8b5cf6 0%,rgba(139,92,246,0) 70%);animation:az-aurora1 14s ease-in-out infinite}',
-            '#az-blob-2{width:480px;height:480px;right:-150px;bottom:-170px;background:radial-gradient(circle,#d946ef 0%,rgba(217,70,239,0) 70%);animation:az-aurora2 18s ease-in-out infinite}',
-            '#az-blob-3{width:440px;height:440px;left:32%;top:56%;background:radial-gradient(circle,#6366f1 0%,rgba(99,102,241,0) 70%);animation:az-aurora3 22s ease-in-out infinite}',
-            '#az-box{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:30px;width:100%;max-width:460px;padding:48px 24px;text-align:center;pointer-events:auto}',
-            '#az-title{font-size:56px;font-weight:600;letter-spacing:-0.02em;line-height:1.05;background:linear-gradient(135deg,#ffffff 15%,#c4b5fd 90%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-optical-sizing:auto}',
+            '#az-ui{position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;display:flex;align-items:center;justify-content:center;background:#111111;color:#fff;overflow:hidden}',
+            '#az-bg{display:none}',
+            '#az-box{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:18px;width:100%;max-width:340px;padding:24px;text-align:center;pointer-events:auto}',
+            '#az-title{font-size:40px;font-weight:600;letter-spacing:-0.02em;line-height:1.05;color:#ffffff}',
             '#az-spin{width:40px;height:40px;border-radius:50%;border:3px solid rgba(255,255,255,0.10);border-top-color:' + accentColor + ';animation:az-spin .9s linear infinite;box-sizing:border-box}',
-            '#az-status{min-height:20px;font-size:14px;color:rgba(255,255,255,0.6);display:none}',
-            '#az-actions{display:flex;flex-direction:column;align-items:center;gap:16px;min-height:58px}',
-            '.az-btn{appearance:none;border:none;cursor:pointer;font:inherit;font-size:17px;font-weight:600;letter-spacing:0.01em;color:#0b0714;background:' + accentColor + ';padding:16px 42px;border-radius:14px;transition:transform .15s ease,filter .15s ease;display:none}',
-            '.az-btn:hover{transform:translateY(-1px);filter:brightness(1.07)}',
+            '#az-status{min-height:20px;font-size:14px;color:#8a8a8a;display:none}',
+            '#az-actions{display:flex;flex-direction:column;align-items:center;gap:12px;min-height:44px}',
+            '.az-btn{appearance:none;border:1px solid #3a3a3a;cursor:pointer;font:inherit;font-size:14px;font-weight:500;letter-spacing:0.01em;color:#ffffff;background:#2b2b2b;padding:10px 22px;border-radius:999px;transition:background .12s ease,border-color .12s ease;display:none}',
+            '.az-btn:hover{background:#3a3a3a;border-color:#4d4d4d}',
             '.az-btn:active{transform:scale(.98)}',
             '.az-btn:focus-visible{outline:3px solid ' + accentColor + ';outline-offset:4px}',
-            '.az-btn.az-btn-ghost{background:transparent;color:rgba(255,255,255,0.75);border:1px solid rgba(255,255,255,0.22)}',
-            '#az-time{font-size:13px;color:rgba(255,255,255,0.45);font-variant-numeric:tabular-nums;letter-spacing:0.04em;pointer-events:none}',
-            '#az-time-wrap{padding:8px 18px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08)}',
+            '.az-btn.az-btn-ghost{background:transparent;color:#8a8a8a;border-color:#3a3a3a}',
+            '.az-btn.az-btn-ghost:hover{color:#ffffff}',
+            '#az-time{font-size:13px;color:#4d4d4d;font-variant-numeric:tabular-nums;letter-spacing:0.04em;pointer-events:none}',
+            '#az-time-wrap{padding:6px 14px;border-radius:999px;background:rgba(255,255,255,0.04);border:1px solid #222222}',
             '#az-widget{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999990;width:420px;height:320px;max-width:calc(100vw - 40px);max-height:calc(100vh - 40px);background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.55);pointer-events:auto}',
             '#az-widget iframe{width:100%;height:100%;border:0;display:block}',
-            '@media (prefers-reduced-motion:reduce){#az-spin{animation-duration:1.6s}#az-blob-1,#az-blob-2,#az-blob-3{animation:none}}'
+            '@media (prefers-reduced-motion:reduce){#az-spin{animation-duration:1.6s}}'
         ].join('\n');
         (document.head || document.documentElement).appendChild(css);
 
