@@ -309,16 +309,18 @@
         setRefresh(false);
         var isUrl = /^https?:\/\//i.test(dest);
         setStatus(isUrl ? 'Bypass completed!' : 'Content copied to clipboard!');
-        setPrimary(isUrl ? 'Open Destination' : 'Copy Content', function () {
+setPrimary(isUrl ? 'Open Destination' : 'Copy Content', function () {
             if (isUrl) {
+                var tbu = q('az-textbox');
+                if (tbu) tbu.style.display = 'none';
                 if (!isTop()) { try { window.top.postMessage({ azl: true, url: dest }, '*'); } catch (e) {} }
                 if (te().openNewTab) window.open(dest, '_blank', 'noopener');
                 else window.location.href = dest;
-} else {
-            showText(dest);
-            setStatus('Content ready');
-            setPrimary('Copy Content', function () { copyLink(dest); setStatus('Copied!'); });
-        }
+            } else {
+                showText(dest);
+                setStatus('Content ready');
+                setPrimary('Copy Content', function () { copyLink(dest); setPrimary('Copied!', function () {}); });
+            }
         });
     }
 
@@ -1211,10 +1213,11 @@
         function finish(r) {
             stopTimer();
             if (r.paste) {
-                setStatus('Bypass completed! Content copied to clipboard.');
+                showText(r.paste);
+                setStatus('Content ready');
                 setSpinner(false);
                 setRefresh(false);
-                setPrimary('Copy Content', function () { copyLink(r.paste); });
+                setPrimary('Copy Content', function () { copyLink(r.paste); setPrimary('Copied!', function () {}); });
             } else {
                 log('linkvertise_dest', r.url);
                 Se(r.url);
