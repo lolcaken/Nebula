@@ -355,13 +355,18 @@
 
     function Se(dest) {
         stopTimer();
-        setStatus('Bypass completed!');
         setSpinner(false);
         setRefresh(false);
-        setPrimary('Open Destination', function () {
-            if (!isTop()) { try { window.top.postMessage({ azl: true, url: dest }, '*'); } catch (e) {} }
-            if (te().openNewTab) window.open(dest, '_blank', 'noopener');
-            else window.location.href = dest;
+        var isUrl = /^https?:\/\//i.test(dest);
+        setStatus(isUrl ? 'Bypass completed!' : 'Content copied to clipboard!');
+        setPrimary(isUrl ? 'Open Destination' : 'Copy Content', function () {
+            if (isUrl) {
+                if (!isTop()) { try { window.top.postMessage({ azl: true, url: dest }, '*'); } catch (e) {} }
+                if (te().openNewTab) window.open(dest, '_blank', 'noopener');
+                else window.location.href = dest;
+            } else {
+                copyLink(dest);
+            }
         });
     }
 
