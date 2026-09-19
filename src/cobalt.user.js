@@ -49,6 +49,12 @@
 // @match        https://www.1shortlink.com/*
 // @match        https://1short.io/*
 // @match        https://link1s.com/*
+// @match        https://gplinks.com/*
+// @match        https://www.gplinks.com/*
+// @match        https://uskip.cc/*
+// @match        https://techshort.in/*
+// @match        https://boostme.live/*
+// @match        https://shrinkme.io/*
 // @run-at       document-start
 // @grant        GM_getValue
 // @grant        GM_xmlhttpRequest
@@ -85,9 +91,10 @@
     var IS_BOOST = HOST.indexOf('boost.ink') !== -1;
     var IS_DLINK = HOST.indexOf('clictune.com') !== -1 || HOST.indexOf('dlink') !== -1;
     var IS_ONESHORT = HOST.indexOf('1shortlink.com') !== -1 || HOST.indexOf('1short.io') !== -1 || HOST.indexOf('link1s.com') !== -1;
-    if (!IS_LOOTLABS && !IS_REKONISE && !IS_LOCKR && !IS_SHORTFLY && !IS_BSTSHRT && !IS_LINKVERTISE && !IS_OUO && !IS_S4U && !IS_BOOST && !IS_DLINK && !IS_ONESHORT) return;
+    var IS_WALLGROUP = HOST.indexOf('gplinks.com') !== -1 || HOST.indexOf('uskip.cc') !== -1 || HOST.indexOf('techshort.in') !== -1 || HOST.indexOf('boostme.live') !== -1 || HOST.indexOf('shrinkme.io') !== -1;
+    if (!IS_LOOTLABS && !IS_REKONISE && !IS_LOCKR && !IS_SHORTFLY && !IS_BSTSHRT && !IS_LINKVERTISE && !IS_OUO && !IS_S4U && !IS_BOOST && !IS_DLINK && !IS_ONESHORT && !IS_WALLGROUP) return;
     if (window.self !== window.top) {
-        if (!isLootDomain(HOST) && HOST.indexOf('rekonise.com') === -1 && HOST.indexOf('lockr.') === -1 && !IS_SHORTFLY && HOST.indexOf('bstshrt.com') === -1 && HOST.indexOf('linkvertise.com') === -1 && !IS_OUO && !IS_S4U && !IS_BOOST && !IS_DLINK && !IS_ONESHORT) return;
+        if (!isLootDomain(HOST) && HOST.indexOf('rekonise.com') === -1 && HOST.indexOf('lockr.') === -1 && !IS_SHORTFLY && HOST.indexOf('bstshrt.com') === -1 && HOST.indexOf('linkvertise.com') === -1 && !IS_OUO && !IS_S4U && !IS_BOOST && !IS_DLINK && !IS_ONESHORT && !IS_WALLGROUP) return;
         if (window.innerWidth <= 1 && window.innerHeight <= 1) return;
     }
     if (window.__cobalt_lb_active) return;
@@ -132,7 +139,7 @@
     function el(tag){return document.createElement(tag)}
     function ts(){return (new Date()).getTime()}
 
-    var state = { url: location.href, hostname: location.hostname, domain: IS_LOCKR ? 'lockr' : (IS_REKONISE ? 'rekonise' : (IS_BSTSHRT ? 'bstshrt' : (IS_LINKVERTISE ? 'linkvertise' : (IS_OUO ? 'ouo' : (IS_S4U ? 'sub4unlock' : (IS_BOOST ? 'boost' : (IS_DLINK ? 'dlink' : (IS_ONESHORT ? '1shortlink' : 'lootlabs')))))))), sessionId: Math.random().toString(36).slice(2, 15), scriptVersion: '1.0.0', startedAt: (new Date()).toISOString() };
+    var state = { url: location.href, hostname: location.hostname, domain: IS_LOCKR ? 'lockr' : (IS_REKONISE ? 'rekonise' : (IS_BSTSHRT ? 'bstshrt' : (IS_LINKVERTISE ? 'linkvertise' : (IS_OUO ? 'ouo' : (IS_S4U ? 'sub4unlock' : (IS_BOOST ? 'boost' : (IS_DLINK ? 'dlink' : (IS_ONESHORT ? '1shortlink' : (IS_WALLGROUP ? 'wall' : 'lootlabs'))))))))), sessionId: Math.random().toString(36).slice(2, 15), scriptVersion: '1.0.0', startedAt: (new Date()).toISOString() };
     function log(k,v){try{state[k]=v}catch(e){}}
 
     function lapse(ms){return new Promise(function(res){setTimeout(res,ms)})}
@@ -1477,6 +1484,43 @@ function showText(t) {
         });
     }
 
+    /* wallgroup: gplinks, uskip, techshort, boostme, shrinkme */
+    function wallMain() {
+        var pn = location.pathname;
+        if (pn === '/' || pn === '') return;
+        buildUI();
+        startTimer();
+        startWait(function () {
+            setStatus('Reading destination...');
+            var iv = setInterval(function () {
+                try {
+                    var link = document.querySelector('a#mag_ad[href], a#finalurl[href], a.btn[href*="http"], a[href*="bypass"]');
+                    if (link && /^https?:\/\//i.test(link.getAttribute('href'))) {
+                        clearInterval(iv); stopTimer(); log('wall_dest', link.getAttribute('href'));
+                        return void Se(link.getAttribute('href'));
+                    }
+                    var go = document.querySelector('input[name="go"], input#go, input[name="url"], input#url, #go, #url, #final, #redirect-link');
+                    if (go && /^https?:\/\//i.test(go.value || go.getAttribute('value') || '')) {
+                        var dest = go.value || go.getAttribute('value');
+                        clearInterval(iv); stopTimer(); log('wall_dest', dest);
+                        return void Se(dest);
+                    }
+                    var frm = document.querySelector('form');
+                    if (frm && /^https?:\/\//i.test(frm.getAttribute('action') || '')) {
+                        clearInterval(iv); stopTimer(); log('wall_dest', frm.getAttribute('action'));
+                        return void Se(frm.getAttribute('action'));
+                    }
+                    var start = document.querySelector('#btn1, button[type="submit"], input[type="submit"], #continue');
+                    if (start && !start.getAttribute('data-az-done') && start.click) {
+                        start.setAttribute('data-az-done', '1');
+                        start.click();
+                    }
+                } catch (e) {}
+            }, 400);
+            setTimeout(function () { clearInterval(iv); failUI('Could not read destination. Please refresh.'); }, 20000);
+        });
+    }
+
     if (IS_REKONISE) return void rekoniseMain();
     if (IS_LOCKR) return void lokrMain();
     if (IS_SHORTFLY) return void shortflyMain();
@@ -1487,6 +1531,7 @@ function showText(t) {
     if (IS_BOOST) return void boostMain();
     if (IS_DLINK) return void dlinkMain();
     if (IS_ONESHORT) return void oneShortMain();
+    if (IS_WALLGROUP) return void wallMain();
 
     
     var pn = location.pathname;

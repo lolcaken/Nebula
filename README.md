@@ -18,3 +18,8 @@ Install `src/cobalt.user.js`. Plain source in `src/cobalt.js`.
 | boost | boost.ink |
 | dlink | clictune.com, dlink1-4, dlink2.net, dlink4.net, dlink10.com |
 | 1shortlink | 1shortlink.com, 1short.io, link1s.com |
+| gplinks | gplinks.com |
+| uskip | uskip.cc |
+| techshort | techshort.in |
+| boostme | boostme.live |
+| shrinkme | shrinkme.io |
