@@ -1524,53 +1524,61 @@ function showText(t) {
     /* bstlar / boostellar - boost walls */
     function bstlarMain() {
         if (location.pathname === '/' || location.pathname === '') return;
-        buildUI();
-        startTimer();
-        startWait(function () {
-            setStatus('Bypassing...');
-            var tries = 0;
-            var iv = setInterval(function () {
-                var link = __bstlarLink;
-                var input = document.querySelector('input#link_action_id');
-                var la = (link && link.la) || (input && input.value) || '';
-                var slug = location.pathname.replace(/^\//, '').replace(/\/$/, '');
-                if (!link && la && ++tries > 4) { clearInterval(iv); }
-                if (!link && input && input.value) {
-                    var la2 = input.value;
-                    if (tries > 0) return;
-                    tries++;
-                    fetch('https://bstlar.com/api/link?url=' + encodeURIComponent(slug) + '&link_action_id=' + encodeURIComponent(la2), { credentials: 'include' })
+        var ready = function () { return !!(document.querySelector('input#link_action_id') || __bstlarLink); };
+        var preIv = setInterval(function () {
+            if (!ready()) return;
+            clearInterval(preIv);
+            buildUI();
+            startTimer();
+            startWait(function () {
+                setStatus('Bypassing...');
+                var tries = 0;
+                var iv = setInterval(function () {
+                    var link = __bstlarLink;
+                    var input = document.querySelector('input#link_action_id');
+                    var la = (link && link.la) || (input && input.value) || '';
+                    if (!link && input && input.value && tries === 0) {
+                        tries = 1;
+                        var slug2 = location.pathname.replace(/^\//, '').replace(/\/$/, '');
+                        var la2 = input.value;
+                        setStatus('Bypassing...');
+                        fetch('https://bstlar.com/api/link?url=' + encodeURIComponent(slug2) + '&link_action_id=' + encodeURIComponent(la2), { credentials: 'include' })
+                            .then(function (r) { return r.json(); })
+                            .then(function (d) { if (d && d.id) __bstlarLink = { id: d.id, la: la2 }; })
+                            .catch(function () {});
+                        return;
+                    }
+                    if (!link || !link.id) return;
+                    clearInterval(iv);
+                    setStatus('Completing tasks...');
+                    var token = __bstlarCsrf();
+                    var headers = { 'Content-Type': 'application/json' };
+                    if (token) headers['X-XSRF-TOKEN'] = token;
+                    headers['X-Requested-With'] = 'XMLHttpRequest';
+                    headers['Accept'] = 'application/json';
+                    fetch('https://bstlar.com/api/link-completed', {
+                        method: 'POST',
+                        headers: headers,
+                        credentials: 'include',
+                        body: JSON.stringify({ link_id: String(link.id), link_action_id: String(la) })
+                    })
                         .then(function (r) { return r.json(); })
-                        .then(function (d) { if (d && d.id) __bstlarLink = { id: d.id, la: la2 }; })
-                        .catch(function () {});
-                    return;
-                }
-                if (!link || !link.id) return;
-                clearInterval(iv);
-                setStatus('Completing tasks...');
-                var token = __bstlarCsrf();
-                var headers = { 'Content-Type': 'application/json' };
-                if (token) headers['X-XSRF-TOKEN'] = token;
-                headers['X-Requested-With'] = 'XMLHttpRequest';
-                headers['Accept'] = 'application/json';
-                fetch('https://bstlar.com/api/link-completed', {
-                    method: 'POST',
-                    headers: headers,
-                    credentials: 'include',
-                    body: JSON.stringify({ link_id: String(link.id), link_action_id: String(la) })
-                })
-                    .then(function (r) { return r.json(); })
-                    .then(function (pd) {
-                        if (pd && pd.destination_url) {
-                            stopTimer(); setStatus('Bypass completed!'); setSpinner(false); setRefresh(false);
-                            log('bstlar_dest', pd.destination_url);
-                            return void Se(pd.destination_url);
-                        }
-                        failUI('Unlock returned no destination. Please refresh.');
-                    }).catch(function () { failUI('Unlock request failed. Please refresh.'); });
-            }, 600);
-            setTimeout(function () { clearInterval(iv); failUI('Could not grab the link. Please refresh.'); }, 30000);
-        });
+                        .then(function (pd) {
+                            if (pd && pd.destination_url) {
+                                stopTimer(); setStatus('Bypass completed!'); setSpinner(false); setRefresh(false);
+                                log('bstlar_dest', pd.destination_url);
+                                return void Se(pd.destination_url);
+                            }
+                            failUI('Unlock returned no destination. Please refresh.');
+                        }).catch(function () { failUI('Unlock request failed. Please refresh.'); });
+                }, 600);
+                setTimeout(function () { clearInterval(iv); failUI('Could not grab the link. Please refresh.'); }, 30000);
+            });
+        }, 400);
+        setTimeout(function () {
+            clearInterval(preIv);
+            if (!ready()) { buildUI(); failUI('Cloudflare did not clear. Please refresh or tick the checkbox.'); }
+        }, 120000);
     }
 
     
