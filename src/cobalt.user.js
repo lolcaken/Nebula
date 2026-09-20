@@ -83,7 +83,7 @@
                 try { la = new URL(String(u), location.href).searchParams.get('link_action_id') || ''; } catch (e) {}
                 p.then(function (r) {
                     r.clone().text().then(function (t) {
-                        try { var j = JSON.parse(t); if (j && j.id) __bstlarLink = { id: j.id, la: la }; } catch (e2) {}
+                        try { var j = JSON.parse(t); if (j && j.id) __bstlarLink = { id: j.id, la: la, tasks: (j.interactive_tasks || []).map(function (x) { return x.link_task_id; }) }; } catch (e2) {}
                     }).catch(function () {});
                 }).catch(function () {});
             }
@@ -1544,7 +1544,7 @@ function showText(t) {
                         setStatus('Bypassing...');
                         fetch('https://bstlar.com/api/link?url=' + encodeURIComponent(slug2) + '&link_action_id=' + encodeURIComponent(la2), { credentials: 'include' })
                             .then(function (r) { return r.json(); })
-                            .then(function (d) { if (d && d.id) __bstlarLink = { id: d.id, la: la2 }; })
+                            .then(function (d) { if (d && d.id) __bstlarLink = { id: d.id, la: la2, tasks: (d.interactive_tasks || []).map(function (x) { return x.link_task_id; }) }; })
                             .catch(function () {});
                         return;
                     }
@@ -1556,23 +1556,58 @@ function showText(t) {
                     if (token) headers['X-XSRF-TOKEN'] = token;
                     headers['X-Requested-With'] = 'XMLHttpRequest';
                     headers['Accept'] = 'application/json';
-                    fetch('https://bstlar.com/api/link-completed', {
-                        method: 'POST',
-                        headers: headers,
-                        credentials: 'include',
-                        body: JSON.stringify({ link_id: String(link.id), link_action_id: String(la) })
-                    })
-                        .then(function (r) { return r.json(); })
-                        .then(function (pd) {
-                            if (pd && pd.destination_url) {
-                                stopTimer(); setStatus('Bypass completed!'); setSpinner(false); setRefresh(false);
-                                log('bstlar_dest', pd.destination_url);
-                                return void Se(pd.destination_url);
+                    var tasks = (link.tasks || []).slice();
+                    if (tasks.length === 0 && input && input.value) tasks = [null];
+                    var chain = Promise.resolve();
+                    var done = 0;
+                    var total = tasks.length;
+                    tasks.forEach(function (tid) {
+                        chain = chain.then(function () {
+                            var body = { link_id: String(link.id) };
+                            if (tid) body.link_task_id = String(tid);
+                            else body.link_action_id = String(la);
+                            return fetch('https://bstlar.com/api/link-task-completed', {
+                                method: 'POST', headers: headers, credentials: 'include',
+                                body: JSON.stringify(body)
+                            }).then(function (r) { return r.text(); }).catch(function () { return ''; })
+                              .then(function (txt) {
+                                  var j = null; try { j = JSON.parse(txt); } catch (e) {}
+                                  if (j && j.destination_url) return { done: 'dest', url: j.destination_url };
+                                  done++;
+                                  return { done: done };
+                              });
+                        });
+                    });
+                    chain.then(function (last) {
+                        if (last && last.done === 'dest') { finalize(last.url); return; }
+                        setStatus('Waiting for unlock...');
+                        var pollIv = setInterval(function () {
+                            var got = grabUnlock();
+                            if (got) { clearInterval(pollIv); finalize(got); }
+                        }, 700);
+                        setTimeout(function () { clearInterval(pollIv); failUI('Could not unlock. Please refresh.'); }, 25000);
+                    });
+                    function grabUnlock() {
+                        try {
+                            var anchors = document.querySelectorAll('a[href]');
+                            for (var j = 0; j < anchors.length; j++) {
+                                var hh = anchors[j].getAttribute('href') || '';
+                                if (/^https?:\/\//i.test(hh) && hh.indexOf(location.hostname) === -1
+                                    && hh.indexOf('youtube.com') === -1 && hh.indexOf('youtu.be') === -1
+                                    && hh.indexOf('spotify.com') === -1 && hh.indexOf('instagram.com') === -1
+                                    && hh.indexOf('twitter.com') === -1 && hh.indexOf('x.com') === -1
+                                    && hh.indexOf('discord.gg') === -1 && hh.indexOf('protechguides.com') === -1) return hh;
                             }
-                            failUI('Unlock returned no destination. Please refresh.');
-                        }).catch(function () { failUI('Unlock request failed. Please refresh.'); });
+                        } catch (e) {}
+                        return null;
+                    }
+                    function finalize(u) {
+                        stopTimer(); setStatus('Bypass completed!'); setSpinner(false); setRefresh(false);
+                        log('bstlar_dest', u);
+                        return void Se(u);
+                    }
                 }, 600);
-                setTimeout(function () { clearInterval(iv); failUI('Could not grab the link. Please refresh.'); }, 30000);
+                setTimeout(function () { clearInterval(iv); failUI('Could not grab the link. Please refresh.'); }, 35000);
             });
         }, 400);
         setTimeout(function () {
