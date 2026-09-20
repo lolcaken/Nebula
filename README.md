@@ -8,7 +8,7 @@ Install `src/cobalt.user.js`. Plain source in `src/cobalt.js`.
 
 | Block | Domains |
 | ----- | ------- |
-| lootlabs | lootlabs.gg, lootdest.org, loot-link.com, loot-links.com, ultra-links.net, lootboost.net, fast-links.org, loot-reward.com, shrtslug.biz, biovetro.net, technons.com, yrtourguide.com, tournguide.com |
+| lootlabs | lootlabs.gg, lootdest.org / .com, loot-link.com, lootlinks.com, loot-links.com, ultra-links.net, lootboost.net, fast-links.org, loot-reward.com, shrtslug.biz, biovetro.net, technons.com, yrtourguide.com, tournguide.com |
 | rekonise | rekonise.com |
 | lockr | lockr.net, lockr.so |
 | bstshrt | bstshrt.com, mboost.me, bst.gg, booo.st |
@@ -21,4 +21,4 @@ Install `src/cobalt.user.js`. Plain source in `src/cobalt.js`.
 
 ## Planned
 
-Not in the script yet: cuty.io, cety.io, adfoc.us, paster.so, paster.gg, social-unlock.com, socialwolvez.com, sub2get.com, sub2unlock.net, gplinks.com, uskip.cc, techshort.in, boostme.live, shrinkme.io, mendationforc.info, unlocknow.net.
+Not in the script yet: cuty.io, cety.io, cety.app, cuttty.com, adfoc.us, paster.so, paster.gg, social-unlock.com, link-unlock.com, socialwolvez.com, sub2get.com, sub2unlock.net, gplinks.com, uskip.cc, techshort.in, boostme.live, shrinkme.io, mendationforc.info, unlocknow.net.

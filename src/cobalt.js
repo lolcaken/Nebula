@@ -6,7 +6,9 @@
     function isLootDomain(h) {
         return h.indexOf('lootlabs.gg') !== -1
             || h.indexOf('lootdest.org') !== -1
+            || h.indexOf('lootdest.com') !== -1
             || h.indexOf('loot-link.com') !== -1
+            || h.indexOf('lootlinks.com') !== -1
             || h.indexOf('loot-links.com') !== -1
             || h.indexOf('ultra-links.net') !== -1
             || h.indexOf('lootboost.net') !== -1

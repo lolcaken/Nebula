@@ -13,10 +13,14 @@
 // @match        https://loot-reward.com/*
 // @match        https://*.lootdest.org/*
 // @match        https://lootdest.org/*
+// @match        https://lootdest.com/*
+// @match        https://*.lootdest.com/*
 // @match        https://*.loot-link.com/*
 // @match        https://loot-link.com/*
 // @match        https://*.loot-links.com/*
 // @match        https://loot-links.com/*
+// @match        https://*.lootlinks.com/*
+// @match        https://lootlinks.com/*
 // @match        https://shrtslug.biz/*
 // @match        https://biovetro.net/*
 // @match        https://technons.com/*
@@ -70,7 +74,9 @@
     function isLootDomain(h) {
         return h.indexOf('lootlabs.gg') !== -1
             || h.indexOf('lootdest.org') !== -1
+            || h.indexOf('lootdest.com') !== -1
             || h.indexOf('loot-link.com') !== -1
+            || h.indexOf('lootlinks.com') !== -1
             || h.indexOf('loot-links.com') !== -1
             || h.indexOf('ultra-links.net') !== -1
             || h.indexOf('lootboost.net') !== -1
