@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cobalt
 // @namespace    https://tampermonkey.net/
-// @version      1.0.7
+// @version      1.0.8
 // @description  Bypass locked links with simple click!
 // @author       wrex
 // @downloadURL  https://lolcaken.github.io/cobalt/src/cobalt.user.js
@@ -13,14 +13,10 @@
 // @match        https://loot-reward.com/*
 // @match        https://*.lootdest.org/*
 // @match        https://lootdest.org/*
-// @match        https://lootdest.com/*
-// @match        https://*.lootdest.com/*
 // @match        https://*.loot-link.com/*
 // @match        https://loot-link.com/*
 // @match        https://*.loot-links.com/*
 // @match        https://loot-links.com/*
-// @match        https://*.lootlinks.com/*
-// @match        https://lootlinks.com/*
 // @match        https://shrtslug.biz/*
 // @match        https://biovetro.net/*
 // @match        https://technons.com/*
@@ -29,8 +25,6 @@
 // @match        https://rekonise.com/*
 // @match        https://lockr.net/*
 // @match        https://lockr.so/*
-// @match        https://*.work.ink/*
-// @match        https://work.ink/*
 // @match        https://bstshrt.com/*
 // @match        https://mboost.me/*
 // @match        https://bst.gg/*
@@ -76,9 +70,7 @@
     function isLootDomain(h) {
         return h.indexOf('lootlabs.gg') !== -1
             || h.indexOf('lootdest.org') !== -1
-            || h.indexOf('lootdest.com') !== -1
             || h.indexOf('loot-link.com') !== -1
-            || h.indexOf('lootlinks.com') !== -1
             || h.indexOf('loot-links.com') !== -1
             || h.indexOf('ultra-links.net') !== -1
             || h.indexOf('lootboost.net') !== -1
@@ -94,12 +86,11 @@
     var IS_OUO = HOST.indexOf('ouo.io') !== -1 || HOST.indexOf('ouo.press') !== -1;
     var IS_S4U = HOST.indexOf('sub4unlock') !== -1 || HOST.indexOf('subfinal.com') !== -1 || HOST.indexOf('sub2unlock') !== -1 || HOST.indexOf('ytsubme') !== -1;
     var IS_BOOST = HOST.indexOf('boost.ink') !== -1;
-    var IS_WORKINK = HOST.indexOf('work.ink') !== -1;
     var IS_DLINK = HOST.indexOf('clictune.com') !== -1 || HOST.indexOf('dlink') !== -1;
     var IS_ONESHORT = HOST.indexOf('1shortlink.com') !== -1 || HOST.indexOf('1short.io') !== -1 || HOST.indexOf('link1s.com') !== -1;
-    if (!IS_LOOTLABS && !IS_REKONISE && !IS_LOCKR && !IS_SHORTFLY && !IS_BSTSHRT && !IS_LINKVERTISE && !IS_OUO && !IS_S4U && !IS_BOOST && !IS_WORKINK && !IS_DLINK && !IS_ONESHORT) return;
+    if (!IS_LOOTLABS && !IS_REKONISE && !IS_LOCKR && !IS_SHORTFLY && !IS_BSTSHRT && !IS_LINKVERTISE && !IS_OUO && !IS_S4U && !IS_BOOST && !IS_DLINK && !IS_ONESHORT) return;
     if (window.self !== window.top) {
-        if (!isLootDomain(HOST) && HOST.indexOf('rekonise.com') === -1 && HOST.indexOf('lockr.') === -1 && !IS_SHORTFLY && HOST.indexOf('bstshrt.com') === -1 && HOST.indexOf('linkvertise.com') === -1 && !IS_OUO && !IS_S4U && !IS_BOOST && !IS_WORKINK && !IS_DLINK && !IS_ONESHORT) return;
+        if (!isLootDomain(HOST) && HOST.indexOf('rekonise.com') === -1 && HOST.indexOf('lockr.') === -1 && !IS_SHORTFLY && HOST.indexOf('bstshrt.com') === -1 && HOST.indexOf('linkvertise.com') === -1 && !IS_OUO && !IS_S4U && !IS_BOOST && !IS_DLINK && !IS_ONESHORT) return;
         if (window.innerWidth <= 1 && window.innerHeight <= 1) return;
     }
     if (window.__cobalt_lb_active) return;
@@ -144,7 +135,7 @@
     function el(tag){return document.createElement(tag)}
     function ts(){return (new Date()).getTime()}
 
-    var state = { url: location.href, hostname: location.hostname, domain: IS_LOCKR ? 'lockr' : (IS_REKONISE ? 'rekonise' : (IS_BSTSHRT ? 'bstshrt' : (IS_LINKVERTISE ? 'linkvertise' : (IS_OUO ? 'ouo' : (IS_S4U ? 'sub4unlock' : (IS_BOOST ? 'boost' : (IS_WORKINK ? 'workink' : (IS_DLINK ? 'dlink' : (IS_ONESHORT ? '1shortlink' : 'lootlabs'))))))))), sessionId: Math.random().toString(36).slice(2, 15), scriptVersion: '1.0.0', startedAt: (new Date()).toISOString() };
+    var state = { url: location.href, hostname: location.hostname, domain: IS_LOCKR ? 'lockr' : (IS_REKONISE ? 'rekonise' : (IS_BSTSHRT ? 'bstshrt' : (IS_LINKVERTISE ? 'linkvertise' : (IS_OUO ? 'ouo' : (IS_S4U ? 'sub4unlock' : (IS_BOOST ? 'boost' : (IS_DLINK ? 'dlink' : (IS_ONESHORT ? '1shortlink' : 'lootlabs')))))))), sessionId: Math.random().toString(36).slice(2, 15), scriptVersion: '1.0.0', startedAt: (new Date()).toISOString() };
     function log(k,v){try{state[k]=v}catch(e){}}
 
     function lapse(ms){return new Promise(function(res){setTimeout(res,ms)})}
@@ -1499,292 +1490,6 @@ function showText(t) {
     if (IS_BOOST) return void boostMain();
     if (IS_DLINK) return void dlinkMain();
     if (IS_ONESHORT) return void oneShortMain();
-    if (IS_WORKINK) return void workInkMain();
-
-    /* work.ink (ported from F.E.A.R approach) */
-    var WI_RELAY = 'https://work-direct.ink/api/clientSides/workink';
-    var WI_TURNSTILE_KEY = '0x4AAAAAAAJoXhmMXwq7jgK9';
-    function wiDecodeJwt(t) { try { if (!t || typeof t !== 'string') return null; var p = t.split('.'); if (p.length !== 3) return null; var q = JSON.parse(atob(p[1])); if (!q.exp || typeof q.exp !== 'number') return null; return q; } catch (e) { return null; } }
-    function wiTokenOk(t) { var q = wiDecodeJwt(t); return !!(t && q && Math.floor(Date.now() / 1000) < q.exp); }
-    function wiStrip(s) { return String(s || '').trim().replace(/^['"`]|['"`]$/g, ''); }
-    function wiUSCArg(item, name) { var m = String(item).match(new RegExp('^USC:' + name + '[ao]?\\(([\\s\\S]*)\\)$')); return m ? wiStrip(m[1].trim()) : null; }
-    function wiSafeDecode(s) { if (s.indexOf('%0A') !== -1 || s.indexOf('%20') !== -1 || s.indexOf('%3D') !== -1) { try { return decodeURIComponent(s); } catch (e) { return s; } } return s; }
-    function wiSleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
-    function wiMkCaptchaBox() {
-        var wrap = document.createElement('div');
-        wrap.id = 'az-captcha';
-        wrap.style.cssText = 'display:flex;justify-content:center;align-items:center;min-height:78px;width:100%';
-        var box = q('az-box');
-        if (box) box.insertBefore(wrap, box.querySelector('#az-actions') || null);
-        return wrap;
-    }
-    function wiLoadScript(src) {
-        return new Promise(function (resolve) {
-            if (window.hcaptcha && src.indexOf('hcaptcha') !== -1) return resolve();
-            var s = el('script'); s.src = src; s.async = true; s.defer = true;
-            s.onload = function () { resolve(); }; s.onerror = function () { resolve(); };
-            (document.head || document.documentElement).appendChild(s);
-        });
-    }
-    function wiFetch(payload) {
-        var qs = new URLSearchParams();
-        for (var k in payload) { if (payload[k] !== undefined && payload[k] !== null) qs.set(k, String(payload[k])); }
-        return fetch(WI_RELAY + '?' + qs.toString(), { method: 'GET', headers: { Accept: 'text/event-stream' }, cache: 'no-store' });
-    }
-    function wiReadSSE(resp) {
-        if (!resp || !resp.body) return Promise.resolve({ responses: [], messages: [] });
-        var reader = resp.body.getReader(), dec = new TextDecoder(), responses = [], messages = [], buffer = '';
-        return reader.read().then(function step(r) {
-            if (r.done) return { responses: responses, messages: messages };
-            buffer += dec.decode(r.value, { stream: true });
-            var lines = buffer.split('\n'); buffer = lines.pop();
-            for (var i = 0; i < lines.length; i++) {
-                if (lines[i].indexOf('data: ') !== 0) continue;
-                try {
-                    var ev = JSON.parse(lines[i].slice(6));
-                    if (ev.type === 'r') responses.push(ev.pyl);
-                    else if (ev.type === 'm') messages.push(ev.msg);
-                    else if (ev.type === 'error') messages.push('ERROR: ' + ev.msg);
-                    else if (ev.type === 'done') return { responses: responses, messages: messages };
-                } catch (e) {}
-            }
-            return reader.read().then(step);
-        }).finally(function () { try { reader.releaseLock(); } catch (e) {} });
-    }
-    function wiEnsureToken() {
-        if (localStorage.getItem('customerTokenSource') === 'placeholder-force-monocle') return Promise.resolve();
-        var cur = localStorage.getItem('customerToken');
-        if (cur && wiTokenOk(cur)) return Promise.resolve();
-        return wiFetchRelayGen().then(function (t) {
-            if (t && wiTokenOk(t)) { localStorage.setItem('customerToken', t); localStorage.setItem('customerTokenSource', 'server-generated'); return; }
-            localStorage.setItem('customerToken', crypto.randomUUID());
-            localStorage.setItem('customerTokenSource', 'placeholder-force-monocle');
-            location.reload();
-        });
-    }
-    function wiFetchRelayGen() {
-        return fetch(WI_RELAY + '/genAccount?cv=' + (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2)))
-            .then(function (r) { return r.json(); })
-            .then(function (j) { return j && j.niggaID ? j.niggaID : null; })
-            .catch(function () { return null; });
-    }
-    function wiCaptureMonocle() {
-        return new Promise(function (resolve) {
-            var RealWS = window.WebSocket;
-            function HookedWS(url, protocols) {
-                var ws = protocols !== undefined ? new RealWS(url, protocols) : new RealWS(url);
-                if (typeof url === 'string' && url.indexOf('monocleAssessment') !== -1) {
-                    var val = '1';
-                    try { val = new URL(url).searchParams.get('monocleAssessment') || '1'; }
-                    catch (e) { var m = url.match(/[?&]monocleAssessment=([^&#]*)/); val = m ? decodeURIComponent(m[1]) : '1'; }
-                    ws.addEventListener('open', function () { ws.close(1000, 'blocked'); });
-                    setTimeout(function () { if (ws.readyState < 2) ws.close(1000, 'blocked'); }, 0);
-                    return resolve(val);
-                }
-                return ws;
-            }
-            HookedWS.prototype = RealWS.prototype;
-            window.WebSocket = HookedWS;
-        });
-    }
-    function wiRunLinkPhase() {
-        setStatus('Grabbing session...');
-        var monocleP = wiCaptureMonocle();
-        wiSleep(1000).then(function () {
-            if (!localStorage.getItem('customerToken')) { localStorage.setItem('customerToken', crypto.randomUUID()); }
-            fetch(location.href).then(function (r) { return r.text(); }).then(function (html) {
-                var m = html.match(/f_user_id\s*:\s*["']?(\d+)["']?/);
-                setStatus('Session: ' + (m ? m[1] : 'unknown') + ', waiting for monocle...');
-                return monocleP.then(function (monocle) {
-                    setStatus('Redirecting to safe VM...');
-                    location.href = 'https://work.ink/cdn-cgi/trace?a=' + encodeURIComponent(location.href) + '&b=' + (m ? m[1] : '') + '&mncleV=' + encodeURIComponent(monocle);
-                });
-            }).catch(function () { failUI('Could not read session. Please refresh.'); });
-        });
-    }
-    function wiParseVm() {
-        var q = new URLSearchParams(location.search);
-        var pageUrl = q.get('a'), userId = q.get('b'), monocle = q.get('mncleV');
-        if (!pageUrl || !userId || !monocle) return null;
-        var serverOverride = '', custom = '';
-        try { serverOverride = new URLSearchParams(new URL(pageUrl).search).get('sr') || ''; custom = new URL(pageUrl).pathname.split('/').filter(Boolean)[1] || ''; } catch (e) {}
-        return { pageUrl: pageUrl, userId: userId, monocle: monocle, serverOverride: serverOverride, custom: custom };
-    }
-    function wiRandomPath() {
-        try { history.replaceState(null, null, '/' + (String(1e7 + Math.floor(Math.random() * 9e7)) + '-' + Math.floor(Math.random() * 1e10))); } catch (e) {}
-    }
-    function wiHsCaptcha(ws, ctx, sessionId) {
-        var sent = {};
-        wiLoadScript('https://hcaptcha.com/1/api.js');
-        window.onHCaptcha = function (token) {
-            if (!token || sent['hc' + token]) return; sent['hc' + token] = 1;
-            wiFetch({ payl: 'HCTKA:' + token, pal: location.href, sid: sessionId, SST: true }).then(function (resp) {
-                wiReadSSE(resp).then(function (out) {
-                    for (var i = 0; i < out.responses.length; i++) { var a = wiHandleItem(ws, ctx, out.responses[i]); if (a === 'stop') return; if (a === 'send') ws.send(out.responses[i]); }
-                });
-            });
-        };
-        window.loadHCaptcha = function (sitekey) {
-            var c = q('az-captcha');
-            if (!c || !window.hcaptcha) return;
-            try { window.hcaptcha.render(c, { sitekey: sitekey, callback: 'onHCaptcha', 'error-callback': 'onHCaptchaError' }); } catch (e) {}
-        };
-        window.onTurnstile = function (token) {
-            if (!token || sent['tt' + token]) return; sent['tt' + token] = 1;
-            wiFetch({ payl: 'TTTKA:' + token, pal: location.href, sid: sessionId, SST: true }).then(function (resp) {
-                wiReadSSE(resp).then(function (out) {
-                    for (var i = 0; i < out.responses.length; i++) { var a = wiHandleItem(ws, ctx, out.responses[i]); if (a === 'stop') return; if (a === 'send') ws.send(out.responses[i]); }
-                });
-            });
-        };
-        window.onHCaptchaError = function () {};
-        window.onFearOfferClick = function (url) {
-            wiFetch({ payl: 'OFFCLK:' + String(url || ''), pal: location.href, sid: sessionId, SST: true }).then(function (resp) {
-                wiReadSSE(resp).then(function (out) { for (var i = 0; i < out.responses.length; i++) { var a = wiHandleItem(ws, ctx, out.responses[i]); if (a === 'send') ws.send(out.responses[i]); } });
-            });
-        };
-    }
-    function wiHandleItem(ws, ctx, item) {
-        if (typeof item !== 'string') return 'send';
-        if (item.indexOf('USC:invalidSession()') === 0) { ctx.onInvalidSession(); return 'stop'; }
-        var w = wiUSCArg(item, 'wait');
-        if (w !== null && w !== '') { return wiSleep(parseFloat(w) * 1000).then(function () { return 'handled'; }); }
-        var setrep = wiUSCArg(item, 'setrep');
-        if (setrep !== null) {
-            stopTimer();
-            setStatus('Bypass completed!');
-            setSpinner(false);
-            setRefresh(false);
-            try { ws.close(); } catch (e) {}
-            log('workink_dest', setrep.trim());
-            return void Se(setrep.trim());
-        }
-        var follow = wiUSCArg(item, 'FollowChain');
-        if (follow !== null) { stopTimer(); setStatus('Bypass completed!'); setSpinner(false); setRefresh(false); try { ws.close(); } catch (e) {} log('workink_dest', follow); return void Se(follow); }
-        if (item.indexOf('USC:startOperaGXSpoofing()') === 0) {
-            try { fetch('https://work.ink/_api/v2/callback/operaGX', { method: 'POST', headers: { 'User-Agent': 'Opera Installer/1.0', 'Content-Type': 'application/json' }, body: '{"noteligible":true}' }); } catch (e) {}
-            return 'handled';
-        }
-        if (item.indexOf('USC:eval(') === 0) {
-            var m2 = item.match(/^USC:eval\(([\s\S]*)\)$/);
-            if (m2 && m2[1]) { try { var js = wiSafeDecode(m2[1]).replace(/\bNone\b/g, 'null').replace(/\bTrue\b/g, 'true').replace(/\bFalse\b/g, 'false'); var r = eval(js); if (r && typeof r.then === 'function') return r; } catch (e) {} }
-            return 'handled';
-        }
-        if (item.indexOf('USC:') === 0) return 'handled';
-        return 'send';
-    }
-    function wiRunVm(params) {
-        var sessionId = crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2);
-        var invalidDone = false;
-        var ctx = {
-            onInvalidSession: function () {
-                if (invalidDone) return; invalidDone = true;
-                setStatus('Session rejected, grabbing fresh token...');
-                try { localStorage.setItem('customerToken', crypto.randomUUID() || String(Math.random()).slice(2)); localStorage.setItem('customerTokenSource', 'placeholder-force-monocle'); } catch (e) {}
-                location.href = params.pageUrl;
-            }
-        };
-        var ws;
-        try { ws = new WebSocket('wss://work.ink/_api/v2/ws?userId=' + encodeURIComponent(params.userId) + '&custom=' + encodeURIComponent(params.custom) + '&referrer=&toLink=&serverOverride=' + encodeURIComponent(params.serverOverride) + '&customerSessionToken=' + localStorage.getItem('customerToken') + '&monocleAssessment=' + encodeURIComponent(params.monocle)); } catch (e) { failUI('WebSocket failed. Please refresh.'); return; }
-        wiHsCaptcha(ws, ctx, sessionId);
-        var ready = false, pending = [];
-        function route(raw) {
-            return wiFetch({ payl: encodeURIComponent(raw), pal: location.href, sid: sessionId, UVA: 'v2.4-cobalt', SST: true }).then(function (resp) {
-                if (!resp || !resp.ok) { try { ws.send(raw); } catch (e) {} return null; }
-                return wiReadSSE(resp).then(function (out) {
-                    var items = out.responses.length > 0 ? out.responses : [raw];
-                    return Promise.resolve().then(function () {
-                        var chain = Promise.resolve();
-                        for (var i = 0; i < items.length; i++) {
-                            chain = chain.then(function (it) {
-                                return wiHandleItem(ws, ctx, it).then(function (a) { if (a === 'send') { try { ws.send(it); } catch (e) {} } });
-                            }.bind(null, items[i]));
-                        }
-                        return chain;
-                    });
-                });
-            });
-        }
-        ws.onopen = function () {
-            ready = true;
-            setStatus('WebSocket connected, unlocking...');
-            while (pending.length > 0) route(pending.shift());
-            wiFetch({ payl: 'SMNCADV:' + params.monocle, pal: location.href, sid: sessionId, SST: true }).then(function (resp) {
-                if (!resp || !resp.ok) return;
-                wiReadSSE(resp).then(function (out) {
-                    for (var i = 0; i < out.responses.length; i++) { var a = wiHandleItem(ws, ctx, out.responses[i]); if (a === 'stop') return; if (a === 'send') { try { ws.send(out.responses[i]); } catch (e) {} } }
-                });
-            });
-        };
-        ws.onmessage = function (ev) {
-            if (typeof ev.data !== 'string') return;
-            if (!ready) { pending.push(ev.data); return; }
-            route(ev.data);
-        };
-        ws.onclose = function () { setTimeout(function () { failUI('Connection lost. Please refresh.'); }, 2000); };
-    }
-    function wiLoginUi(monocle, pageUrl) {
-        setStatus('Expired session — login required');
-        var box = q('az-box');
-        var wrap = wiMkCaptchaBox();
-        var input = el('input');
-        input.type = 'email'; input.value = '';
-        input.style.cssText = 'width:100%;max-width:320px;padding:10px 14px;border-radius:8px;border:1px solid #3a3a3a;background:#1a1a1a;color:#fff';
-        input.placeholder = 'your@email.com';
-        var tsWrap = el('div');
-        tsWrap.style.cssText = 'display:flex;justify-content:center;min-height:70px;width:100%';
-        var go = el('button');
-        go.textContent = 'Send login code';
-        go.style.cssText = '.az-btn';
-        go.className = 'az-btn';
-        box.insertBefore(input, box.querySelector('#az-actions') || null);
-        box.insertBefore(tsWrap, box.querySelector('#az-actions') || null);
-        box.insertBefore(go, box.querySelector('#az-actions') || null);
-        go.addEventListener('click', function () {
-            if (!input.value.trim()) return;
-            wiLoadScript('https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit').then(function () {
-                var ts = window.turnstile;
-                if (!ts) { setStatus('Captcha failed to load. Please refresh.'); return; }
-                ts.render(tsWrap, {
-                    sitekey: WI_TURNSTILE_KEY,
-                    action: 'premium_login',
-                    callback: function (token) {
-                        fetch('https://work.ink/_api/v2/premium/sendLoginCode', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: input.value.trim(), turnstileToken: token }) }).then(function (r) { return r.json(); }).then(function (d) {
-                            if (!d.mailSent) { setStatus('Failed to send code.'); return; }
-                            var code = prompt('Enter the login code from your email:');
-                            if (!code) return;
-                            fetch('https://work.ink/_api/v2/premium/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: code, email: input.value.trim() }) }).then(function (r) { return r.json(); }).then(function (d2) {
-                                if (!d2.token) { setStatus('Login failed.'); return; }
-                                localStorage.setItem('customerToken', d2.token);
-                                localStorage.setItem('customerTokenSource', 'user-generated');
-                                location.href = pageUrl;
-                            });
-                        });
-                    }
-                });
-            });
-        });
-    }
-    function workInkMain() {
-        if (location.pathname === '/' || location.pathname === '') return;
-        buildUI();
-        startTimer();
-        if (location.pathname.indexOf('cdn-cgi/trace') !== -1) {
-            var params = wiParseVm();
-            if (!params) { failUI('Bad VM params. Please refresh.'); return; }
-            if (localStorage.getItem('customerTokenSource') === 'placeholder-force-monocle') { wiLoginUi(params.monocle, params.pageUrl); return; }
-            setStatus('Starting safe VM...');
-            wiRunVm(params);
-            return;
-        }
-        startWait(function () {
-            setStatus('Starting work.ink bypass...');
-            wiEnsureToken().then(function () {
-                try { wiRandomPath(); } catch (e) {}
-                wiRunLinkPhase();
-            }).catch(function () { failUI('Token failed. Please refresh.'); });
-        });
-    }
 
     
     var pn = location.pathname;
