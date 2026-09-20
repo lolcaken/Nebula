@@ -69,6 +69,31 @@
     'use strict';
     
     var HOST = (location.hostname || '').toLowerCase();
+    var __bstlarLink = null;
+    var __bstlarHooked = false;
+    function __bstlarHook() {
+        if (__bstlarHooked) return;
+        __bstlarHooked = true;
+        var _of = window.fetch;
+        window.fetch = function () {
+            var u = typeof arguments[0] === 'string' ? arguments[0] : ((arguments[0] && arguments[0].url) || '');
+            var p = _of.apply(this, arguments);
+            if (String(u).indexOf('/api/link?') !== -1) {
+                var la = '';
+                try { la = new URL(String(u), location.href).searchParams.get('link_action_id') || ''; } catch (e) {}
+                p.then(function (r) {
+                    r.clone().text().then(function (t) {
+                        try { var j = JSON.parse(t); if (j && j.id) __bstlarLink = { id: j.id, la: la }; } catch (e2) {}
+                    }).catch(function () {});
+                }).catch(function () {});
+            }
+            return p;
+        };
+    }
+    function __bstlarCsrf() {
+        var c = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
+        return c ? decodeURIComponent(c[1]) : '';
+    }
     function isLootDomain(h) {
         return h.indexOf('lootlabs.gg') !== -1
             || h.indexOf('lootdest.org') !== -1
@@ -98,6 +123,7 @@
     }
     if (window.__cobalt_lb_active) return;
     window.__cobalt_lb_active = true;
+    if (HOST.indexOf('bstlar.com') !== -1 || HOST.indexOf('boostellar.com') !== -1) __bstlarHook();
 
     (function () {
         function guard(ev) {
@@ -1504,33 +1530,46 @@ function showText(t) {
             setStatus('Bypassing...');
             var tries = 0;
             var iv = setInterval(function () {
+                var link = __bstlarLink;
                 var input = document.querySelector('input#link_action_id');
-                if (!input || !input.value) { if (++tries > 40) { clearInterval(iv); failUI('Link action not found. Please refresh.'); } return; }
-                clearInterval(iv);
-                var linkActionId = input.value;
+                var la = (link && link.la) || (input && input.value) || '';
                 var slug = location.pathname.replace(/^\//, '').replace(/\/$/, '');
-                setStatus('Reading link...');
-                fetch('https://bstlar.com/api/link?url=' + encodeURIComponent(slug) + '&link_action_id=' + encodeURIComponent(linkActionId), { credentials: 'include' })
+                if (!link && la && ++tries > 4) { clearInterval(iv); }
+                if (!link && input && input.value) {
+                    var la2 = input.value;
+                    if (tries > 0) return;
+                    tries++;
+                    fetch('https://bstlar.com/api/link?url=' + encodeURIComponent(slug) + '&link_action_id=' + encodeURIComponent(la2), { credentials: 'include' })
+                        .then(function (r) { return r.json(); })
+                        .then(function (d) { if (d && d.id) __bstlarLink = { id: d.id, la: la2 }; })
+                        .catch(function () {});
+                    return;
+                }
+                if (!link || !link.id) return;
+                clearInterval(iv);
+                setStatus('Completing tasks...');
+                var token = __bstlarCsrf();
+                var headers = { 'Content-Type': 'application/json' };
+                if (token) headers['X-XSRF-TOKEN'] = token;
+                headers['X-Requested-With'] = 'XMLHttpRequest';
+                headers['Accept'] = 'application/json';
+                fetch('https://bstlar.com/api/link-completed', {
+                    method: 'POST',
+                    headers: headers,
+                    credentials: 'include',
+                    body: JSON.stringify({ link_id: String(link.id), link_action_id: String(la) })
+                })
                     .then(function (r) { return r.json(); })
-                    .then(function (d) {
-                        if (!d.id) { failUI('Failed to read link. Please refresh.'); return; }
-                        setStatus('Completing tasks...');
-                        fetch('https://bstlar.com/api/link-completed', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            credentials: 'include',
-                            body: JSON.stringify({ link_id: String(d.id), link_action_id: linkActionId })
-                        }).then(function (r) { return r.json(); })
-                          .then(function (pd) {
-                              if (pd && pd.destination_url) {
-                                  stopTimer(); setStatus('Bypass completed!'); setSpinner(false); setRefresh(false);
-                                  log('bstlar_dest', pd.destination_url);
-                                  return void Se(pd.destination_url);
-                              }
-                              failUI('Unlock returned no destination. Please refresh.');
-                          }).catch(function () { failUI('Unlock request failed. Please refresh.'); });
-                    }).catch(function () { failUI('Link request failed. Please refresh.'); });
-            }, 500);
+                    .then(function (pd) {
+                        if (pd && pd.destination_url) {
+                            stopTimer(); setStatus('Bypass completed!'); setSpinner(false); setRefresh(false);
+                            log('bstlar_dest', pd.destination_url);
+                            return void Se(pd.destination_url);
+                        }
+                        failUI('Unlock returned no destination. Please refresh.');
+                    }).catch(function () { failUI('Unlock request failed. Please refresh.'); });
+            }, 600);
+            setTimeout(function () { clearInterval(iv); failUI('Could not grab the link. Please refresh.'); }, 30000);
         });
     }
 
