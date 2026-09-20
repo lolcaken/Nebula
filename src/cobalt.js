@@ -1435,48 +1435,36 @@ function showText(t) {
         buildUI();
         startTimer();
         startWait(function () {
-            setStatus('Starting boosts...');
-            var clicked = {};
-            var skip = ['unlock link'];
+            setStatus('Unlocking...');
+            var tries = 0;
             var iv = setInterval(function () {
-                try {
-                    var btns = document.querySelectorAll('button, a');
-                    var unlock = null;
-                    var anchors = document.querySelectorAll('a[href]');
-                    for (var j = 0; j < anchors.length; j++) {
-                        var hh = anchors[j].getAttribute('href') || '';
-                        if (/^https?:\/\//i.test(hh) && hh.indexOf(location.hostname) === -1
-                            && hh.indexOf('youtube.com') === -1 && hh.indexOf('youtu.be') === -1
-                            && hh.indexOf('spotify.com') === -1 && hh.indexOf('instagram.com') === -1
-                            && hh.indexOf('twitter.com') === -1 && hh.indexOf('x.com') === -1) {
-                            clearInterval(iv); stopTimer(); setStatus('Bypass completed!'); setSpinner(false); setRefresh(false);
-                            log('bstlar_dest', hh);
-                            return void Se(hh);
-                        }
-                    }
-                    for (var i = 0; i < btns.length; i++) {
-                        var b = btns[i], t = (b.textContent || '').trim();
-                        if (/unlock link/i.test(t)) { unlock = b; }
-                        else if (/boost|like &|comment|subscribe|notifications|click on ad|visit|follow|start task/i.test(t) && !clicked[t]) {
-                            clicked[t] = 1;
-                            try { b.click(); } catch (e) {}
-                        }
-                    }
-                    if (unlock) {
-                        var pa = unlock.closest ? unlock.closest('a') : null;
-                        var href = pa ? pa.getAttribute('href') : '';
-                        if (!unlock.disabled) {
-                            if (/^https?:\/\//i.test(href) && href.indexOf(location.hostname) === -1) {
-                                clearInterval(iv); stopTimer(); setStatus('Bypass completed!'); setSpinner(false); setRefresh(false);
-                                log('bstlar_dest', href);
-                                return void Se(href);
-                            }
-                            try { unlock.click(); } catch (e) {}
-                        }
-                    }
-                } catch (e) {}
-            }, 1500);
-            setTimeout(function () { clearInterval(iv); failUI('Tasks incomplete. Please refresh.'); }, 90000);
+                var input = document.querySelector('input#link_action_id');
+                if (!input || !input.value) { if (++tries > 40) { clearInterval(iv); failUI('Link action not found. Please refresh.'); } return; }
+                clearInterval(iv);
+                var linkActionId = input.value;
+                var slug = location.pathname.replace(/^\//, '').replace(/\/$/, '');
+                setStatus('Reading link...');
+                fetch('https://bstlar.com/api/link?url=' + encodeURIComponent(slug) + '&link_action_id=' + encodeURIComponent(linkActionId), { credentials: 'include' })
+                    .then(function (r) { return r.json(); })
+                    .then(function (d) {
+                        if (!d.id) { failUI('Failed to read link. Please refresh.'); return; }
+                        setStatus('Completing tasks...');
+                        fetch('https://bstlar.com/api/link-completed', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ link_id: String(d.id), link_action_id: linkActionId })
+                        }).then(function (r) { return r.json(); })
+                          .then(function (pd) {
+                              if (pd && pd.destination_url) {
+                                  stopTimer(); setStatus('Bypass completed!'); setSpinner(false); setRefresh(false);
+                                  log('bstlar_dest', pd.destination_url);
+                                  return void Se(pd.destination_url);
+                              }
+                              failUI('Unlock returned no destination. Please refresh.');
+                          }).catch(function () { failUI('Unlock request failed. Please refresh.'); });
+                    }).catch(function () { failUI('Link request failed. Please refresh.'); });
+            }, 500);
         });
     }
 
