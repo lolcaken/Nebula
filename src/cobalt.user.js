@@ -1501,7 +1501,7 @@ function showText(t) {
         buildUI();
         startTimer();
         startWait(function () {
-            setStatus('Unlocking...');
+            setStatus('Bypassing...');
             var tries = 0;
             var iv = setInterval(function () {
                 var input = document.querySelector('input#link_action_id');
