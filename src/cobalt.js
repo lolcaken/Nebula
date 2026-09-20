@@ -1456,9 +1456,36 @@ function showText(t) {
     if (IS_BSTLAR) return void bstlarMain();
 
     /* bstlar / boostellar - boost walls */
+    function bstlarGrab() {
+        try {
+            var anchors = document.querySelectorAll('a[href]');
+            for (var j = 0; j < anchors.length; j++) {
+                var hh = anchors[j].getAttribute('href') || '';
+                if (/^https?:\/\//i.test(hh) && hh.indexOf(location.hostname) === -1
+                    && hh.indexOf('youtube.com') === -1 && hh.indexOf('youtu.be') === -1
+                    && hh.indexOf('spotify.com') === -1 && hh.indexOf('open.spotify') === -1
+                    && hh.indexOf('instagram.com') === -1 && hh.indexOf('twitter.com') === -1
+                    && hh.indexOf('x.com') === -1 && hh.indexOf('discord.gg') === -1
+                    && hh.indexOf('protechguides.com') === -1 && hh.indexOf('w3.org') === -1
+                    && hh.indexOf('#') === -1) return hh;
+            }
+            var unlock = null;
+            var bs = document.querySelectorAll('button');
+            for (var k = 0; k < bs.length; k++) {
+                if (/unlock link/i.test(bs[k].textContent || '') && !bs[k].disabled) { unlock = bs[k]; break; }
+            }
+            if (unlock) {
+                var pa = unlock.closest ? unlock.closest('a') : null;
+                var hu = pa ? pa.getAttribute('href') : '';
+                if (hu && /^https?:/.test(hu)) return hu;
+                try { if (unlock.click) unlock.click(); } catch (e) {}
+            }
+        } catch (e) {}
+        return null;
+    }
     function bstlarMain() {
         if (location.pathname === '/' || location.pathname === '') return;
-        var ready = function () { return !!(document.querySelector('input#link_action_id') || __bstlarLink); };
+        var ready = function () { return !!document.querySelector('input#link_action_id'); };
         var preIv = setInterval(function () {
             if (!ready()) return;
             clearInterval(preIv);
@@ -1466,82 +1493,29 @@ function showText(t) {
             startTimer();
             startWait(function () {
                 setStatus('Bypassing...');
-                var tries = 0;
+                var clicked = {};
                 var iv = setInterval(function () {
-                    var link = __bstlarLink;
-                    var input = document.querySelector('input#link_action_id');
-                    var la = (link && link.la) || (input && input.value) || '';
-                    if (!link && input && input.value && tries === 0) {
-                        tries = 1;
-                        var slug2 = location.pathname.replace(/^\//, '').replace(/\/$/, '');
-                        var la2 = input.value;
-                        setStatus('Bypassing...');
-                        fetch('https://bstlar.com/api/link?url=' + encodeURIComponent(slug2) + '&link_action_id=' + encodeURIComponent(la2), { credentials: 'include' })
-                            .then(function (r) { return r.json(); })
-                            .then(function (d) { if (d && d.id) __bstlarLink = { id: d.id, la: la2, tasks: (d.interactive_tasks || []).map(function (x) { return x.link_task_id; }) }; })
-                            .catch(function () {});
-                        return;
-                    }
-                    if (!link || !link.id) return;
-                    clearInterval(iv);
-                    setStatus('Completing tasks...');
-                    var token = __bstlarCsrf();
-                    var headers = { 'Content-Type': 'application/json' };
-                    if (token) headers['X-XSRF-TOKEN'] = token;
-                    headers['X-Requested-With'] = 'XMLHttpRequest';
-                    headers['Accept'] = 'application/json';
-                    var tasks = (link.tasks || []).slice();
-                    if (tasks.length === 0 && input && input.value) tasks = [null];
-                    var chain = Promise.resolve();
-                    var done = 0;
-                    var total = tasks.length;
-                    tasks.forEach(function (tid) {
-                        chain = chain.then(function () {
-                            var body = { link_id: String(link.id) };
-                            if (tid) body.link_task_id = String(tid);
-                            else body.link_action_id = String(la);
-                            return fetch('https://bstlar.com/api/link-task-completed', {
-                                method: 'POST', headers: headers, credentials: 'include',
-                                body: JSON.stringify(body)
-                            }).then(function (r) { return r.text(); }).catch(function () { return ''; })
-                              .then(function (txt) {
-                                  var j = null; try { j = JSON.parse(txt); } catch (e) {}
-                                  if (j && j.destination_url) return { done: 'dest', url: j.destination_url };
-                                  done++;
-                                  return { done: done };
-                              });
-                        });
-                    });
-                    chain.then(function (last) {
-                        if (last && last.done === 'dest') { finalize(last.url); return; }
-                        setStatus('Waiting for unlock...');
-                        var pollIv = setInterval(function () {
-                            var got = grabUnlock();
-                            if (got) { clearInterval(pollIv); finalize(got); }
-                        }, 700);
-                        setTimeout(function () { clearInterval(pollIv); failUI('Could not unlock. Please refresh.'); }, 25000);
-                    });
-                    function grabUnlock() {
-                        try {
-                            var anchors = document.querySelectorAll('a[href]');
-                            for (var j = 0; j < anchors.length; j++) {
-                                var hh = anchors[j].getAttribute('href') || '';
-                                if (/^https?:\/\//i.test(hh) && hh.indexOf(location.hostname) === -1
-                                    && hh.indexOf('youtube.com') === -1 && hh.indexOf('youtu.be') === -1
-                                    && hh.indexOf('spotify.com') === -1 && hh.indexOf('instagram.com') === -1
-                                    && hh.indexOf('twitter.com') === -1 && hh.indexOf('x.com') === -1
-                                    && hh.indexOf('discord.gg') === -1 && hh.indexOf('protechguides.com') === -1) return hh;
+                    try {
+                        var got = bstlarGrab();
+                        if (got) {
+                            clearInterval(iv);
+                            stopTimer(); setStatus('Bypass completed!'); setSpinner(false); setRefresh(false);
+                            log('bstlar_dest', got);
+                            return void Se(got);
+                        }
+                        var btns = document.querySelectorAll('button');
+                        for (var i = 0; i < btns.length; i++) {
+                            var b = btns[i], t = (b.textContent || '').trim();
+                            if (/unlock link/i.test(t)) continue;
+                            if (/boost|like &|comment|subscribe|notifications|click on ad|visit|follow|start task|continue/i.test(t) && !clicked[t]) {
+                                clicked[t] = 1;
+                                try { b.click(); } catch (e) {}
                             }
-                        } catch (e) {}
-                        return null;
-                    }
-                    function finalize(u) {
-                        stopTimer(); setStatus('Bypass completed!'); setSpinner(false); setRefresh(false);
-                        log('bstlar_dest', u);
-                        return void Se(u);
-                    }
-                }, 600);
-                setTimeout(function () { clearInterval(iv); failUI('Could not grab the link. Please refresh.'); }, 35000);
+                        }
+                        if (window.self === window.top) { try { window.focus(); } catch (e) {} }
+                    } catch (e) {}
+                }, 800);
+                setTimeout(function () { clearInterval(iv); failUI('Tasks incomplete. Please refresh.'); }, 30000);
             });
         }, 400);
         setTimeout(function () {
