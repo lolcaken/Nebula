@@ -11,6 +11,7 @@ Install `src/cobalt.user.js`. Plain source in `src/cobalt.js`.
 | lootlabs | lootlabs.gg, lootdest.org / .com, loot-link.com, lootlinks.com, loot-links.com, ultra-links.net, lootboost.net, fast-links.org, loot-reward.com, shrtslug.biz, biovetro.net, technons.com, yrtourguide.com, tournguide.com |
 | rekonise | rekonise.com |
 | lockr | lockr.net, lockr.so |
+| work.ink | work.ink |
 | bstshrt | bstshrt.com, mboost.me, bst.gg, booo.st |
 | linkvertise | linkvertise.com |
 | ouo | ouo.io, ouo.press |

@@ -24,11 +24,12 @@
     var IS_OUO = HOST.indexOf('ouo.io') !== -1 || HOST.indexOf('ouo.press') !== -1;
     var IS_S4U = HOST.indexOf('sub4unlock') !== -1 || HOST.indexOf('subfinal.com') !== -1 || HOST.indexOf('sub2unlock') !== -1 || HOST.indexOf('ytsubme') !== -1;
     var IS_BOOST = HOST.indexOf('boost.ink') !== -1;
+    var IS_WORKINK = HOST.indexOf('work.ink') !== -1;
     var IS_DLINK = HOST.indexOf('clictune.com') !== -1 || HOST.indexOf('dlink') !== -1;
     var IS_ONESHORT = HOST.indexOf('1shortlink.com') !== -1 || HOST.indexOf('1short.io') !== -1 || HOST.indexOf('link1s.com') !== -1;
-    if (!IS_LOOTLABS && !IS_REKONISE && !IS_LOCKR && !IS_SHORTFLY && !IS_BSTSHRT && !IS_LINKVERTISE && !IS_OUO && !IS_S4U && !IS_BOOST && !IS_DLINK && !IS_ONESHORT) return;
+    if (!IS_LOOTLABS && !IS_REKONISE && !IS_LOCKR && !IS_SHORTFLY && !IS_BSTSHRT && !IS_LINKVERTISE && !IS_OUO && !IS_S4U && !IS_BOOST && !IS_WORKINK && !IS_DLINK && !IS_ONESHORT) return;
     if (window.self !== window.top) {
-        if (!isLootDomain(HOST) && HOST.indexOf('rekonise.com') === -1 && HOST.indexOf('lockr.') === -1 && !IS_SHORTFLY && HOST.indexOf('bstshrt.com') === -1 && HOST.indexOf('linkvertise.com') === -1 && !IS_OUO && !IS_S4U && !IS_BOOST && !IS_DLINK && !IS_ONESHORT) return;
+        if (!isLootDomain(HOST) && HOST.indexOf('rekonise.com') === -1 && HOST.indexOf('lockr.') === -1 && !IS_SHORTFLY && HOST.indexOf('bstshrt.com') === -1 && HOST.indexOf('linkvertise.com') === -1 && !IS_OUO && !IS_S4U && !IS_BOOST && !IS_WORKINK && !IS_DLINK && !IS_ONESHORT) return;
         if (window.innerWidth <= 1 && window.innerHeight <= 1) return;
     }
     if (window.__cobalt_lb_active) return;
@@ -73,7 +74,7 @@
     function el(tag){return document.createElement(tag)}
     function ts(){return (new Date()).getTime()}
 
-    var state = { url: location.href, hostname: location.hostname, domain: IS_LOCKR ? 'lockr' : (IS_REKONISE ? 'rekonise' : (IS_BSTSHRT ? 'bstshrt' : (IS_LINKVERTISE ? 'linkvertise' : (IS_OUO ? 'ouo' : (IS_S4U ? 'sub4unlock' : (IS_BOOST ? 'boost' : (IS_DLINK ? 'dlink' : (IS_ONESHORT ? '1shortlink' : 'lootlabs')))))))), sessionId: Math.random().toString(36).slice(2, 15), scriptVersion: '1.0.0', startedAt: (new Date()).toISOString() };
+    var state = { url: location.href, hostname: location.hostname, domain: IS_LOCKR ? 'lockr' : (IS_REKONISE ? 'rekonise' : (IS_BSTSHRT ? 'bstshrt' : (IS_LINKVERTISE ? 'linkvertise' : (IS_OUO ? 'ouo' : (IS_S4U ? 'sub4unlock' : (IS_BOOST ? 'boost' : (IS_WORKINK ? 'workink' : (IS_DLINK ? 'dlink' : (IS_ONESHORT ? '1shortlink' : 'lootlabs'))))))))), sessionId: Math.random().toString(36).slice(2, 15), scriptVersion: '1.0.0', startedAt: (new Date()).toISOString() };
     function log(k,v){try{state[k]=v}catch(e){}}
 
     function lapse(ms){return new Promise(function(res){setTimeout(res,ms)})}
@@ -1428,6 +1429,46 @@ function showText(t) {
     if (IS_BOOST) return void boostMain();
     if (IS_DLINK) return void dlinkMain();
     if (IS_ONESHORT) return void oneShortMain();
+    if (IS_WORKINK) return void workInkMain();
+
+    /* work.ink */
+    function workInkMain() {
+        if (location.pathname === '/' || location.pathname === '') return;
+        buildUI();
+        startTimer();
+        startWait(function () {
+            setStatus('Unlocking...');
+            var fired = false;
+            var iv = setInterval(function () {
+                try {
+                    if (!fired) {
+                        var btns = document.querySelectorAll('button');
+                        for (var i = 0; i < btns.length; i++) {
+                            var t = (btns[i].textContent || '').toLowerCase();
+                            if (t.indexOf('view a short ad') !== -1 || t.indexOf('watch') !== -1 || t.indexOf('take action') !== -1) {
+                                btns[i].click();
+                                fired = true;
+                                break;
+                            }
+                        }
+                    }
+                    var a = document.querySelector('a[class*="proceed"][href], a[id*="proceed"][href], [class*="proceed"] a[href]');
+                    if (a) {
+                        var dest = a.getAttribute('href') || '';
+                        if (/^https?:\/\//i.test(dest) && dest.indexOf(location.hostname) === -1) {
+                            clearInterval(iv); stopTimer(); log('workink_dest', dest);
+                            return void Se(dest);
+                        }
+                    }
+                    if (location.href.indexOf('#') !== -1 && location.href.indexOf('#goog') === -1) {
+                        var u2 = location.href.split('#')[0];
+                        if (/^https?:\/\//i.test(u2) && u2.indexOf(location.hostname) === -1) { clearInterval(iv); stopTimer(); log('workink_dest', u2); return void Se(u2); }
+                    }
+                } catch (e) {}
+            }, 500);
+            setTimeout(function () { clearInterval(iv); failUI('Ad not finished. Please refresh and retry.'); }, 45000);
+        });
+    }
 
     
     var pn = location.pathname;
