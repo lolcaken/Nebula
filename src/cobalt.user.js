@@ -25,6 +25,8 @@
 // @match        https://rekonise.com/*
 // @match        https://lockr.net/*
 // @match        https://lockr.so/*
+// @match        https://bstlar.com/*
+// @match        https://boostellar.com/*
 // @match        https://bstshrt.com/*
 // @match        https://mboost.me/*
 // @match        https://bst.gg/*
@@ -82,15 +84,16 @@
     var IS_LOCKR = HOST.indexOf('lockr.') !== -1;
     var IS_SHORTFLY = HOST.indexOf('shrtslug.biz') !== -1 || HOST.indexOf('biovetro.net') !== -1 || HOST.indexOf('technons.com') !== -1 || HOST.indexOf('yrtourguide.com') !== -1 || HOST.indexOf('tournguide.com') !== -1;
     var IS_BSTSHRT = HOST.indexOf('bstshrt.com') !== -1 || HOST.indexOf('bst.gg') !== -1 || HOST.indexOf('booo.st') !== -1 || HOST.indexOf('mboost.me') !== -1;
+    var IS_BSTLAR = HOST.indexOf('bstlar.com') !== -1 || HOST.indexOf('boostellar.com') !== -1;
     var IS_LINKVERTISE = HOST.indexOf('linkvertise.com') !== -1;
     var IS_OUO = HOST.indexOf('ouo.io') !== -1 || HOST.indexOf('ouo.press') !== -1;
     var IS_S4U = HOST.indexOf('sub4unlock') !== -1 || HOST.indexOf('subfinal.com') !== -1 || HOST.indexOf('sub2unlock') !== -1 || HOST.indexOf('ytsubme') !== -1;
     var IS_BOOST = HOST.indexOf('boost.ink') !== -1;
     var IS_DLINK = HOST.indexOf('clictune.com') !== -1 || HOST.indexOf('dlink') !== -1;
     var IS_ONESHORT = HOST.indexOf('1shortlink.com') !== -1 || HOST.indexOf('1short.io') !== -1 || HOST.indexOf('link1s.com') !== -1;
-    if (!IS_LOOTLABS && !IS_REKONISE && !IS_LOCKR && !IS_SHORTFLY && !IS_BSTSHRT && !IS_LINKVERTISE && !IS_OUO && !IS_S4U && !IS_BOOST && !IS_DLINK && !IS_ONESHORT) return;
+    if (!IS_LOOTLABS && !IS_REKONISE && !IS_LOCKR && !IS_SHORTFLY && !IS_BSTSHRT && !IS_BSTLAR && !IS_LINKVERTISE && !IS_OUO && !IS_S4U && !IS_BOOST && !IS_DLINK && !IS_ONESHORT) return;
     if (window.self !== window.top) {
-        if (!isLootDomain(HOST) && HOST.indexOf('rekonise.com') === -1 && HOST.indexOf('lockr.') === -1 && !IS_SHORTFLY && HOST.indexOf('bstshrt.com') === -1 && HOST.indexOf('linkvertise.com') === -1 && !IS_OUO && !IS_S4U && !IS_BOOST && !IS_DLINK && !IS_ONESHORT) return;
+        if (!isLootDomain(HOST) && HOST.indexOf('rekonise.com') === -1 && HOST.indexOf('lockr.') === -1 && !IS_SHORTFLY && HOST.indexOf('bstshrt.com') === -1 && HOST.indexOf('linkvertise.com') === -1 && !IS_OUO && !IS_S4U && !IS_BOOST && !IS_DLINK && !IS_ONESHORT && !IS_BSTLAR) return;
         if (window.innerWidth <= 1 && window.innerHeight <= 1) return;
     }
     if (window.__cobalt_lb_active) return;
@@ -135,7 +138,7 @@
     function el(tag){return document.createElement(tag)}
     function ts(){return (new Date()).getTime()}
 
-    var state = { url: location.href, hostname: location.hostname, domain: IS_LOCKR ? 'lockr' : (IS_REKONISE ? 'rekonise' : (IS_BSTSHRT ? 'bstshrt' : (IS_LINKVERTISE ? 'linkvertise' : (IS_OUO ? 'ouo' : (IS_S4U ? 'sub4unlock' : (IS_BOOST ? 'boost' : (IS_DLINK ? 'dlink' : (IS_ONESHORT ? '1shortlink' : 'lootlabs')))))))), sessionId: Math.random().toString(36).slice(2, 15), scriptVersion: '1.0.0', startedAt: (new Date()).toISOString() };
+    var state = { url: location.href, hostname: location.hostname, domain: IS_LOCKR ? 'lockr' : (IS_REKONISE ? 'rekonise' : (IS_BSTSHRT ? 'bstshrt' : (IS_BSTLAR ? 'bstlar' : (IS_LINKVERTISE ? 'linkvertise' : (IS_OUO ? 'ouo' : (IS_S4U ? 'sub4unlock' : (IS_BOOST ? 'boost' : (IS_DLINK ? 'dlink' : (IS_ONESHORT ? '1shortlink' : 'lootlabs'))))))))), sessionId: Math.random().toString(36).slice(2, 15), scriptVersion: '1.0.0', startedAt: (new Date()).toISOString() };
     function log(k,v){try{state[k]=v}catch(e){}}
 
     function lapse(ms){return new Promise(function(res){setTimeout(res,ms)})}
@@ -1490,6 +1493,58 @@ function showText(t) {
     if (IS_BOOST) return void boostMain();
     if (IS_DLINK) return void dlinkMain();
     if (IS_ONESHORT) return void oneShortMain();
+    if (IS_BSTLAR) return void bstlarMain();
+
+    /* bstlar / boostellar - boost walls */
+    function bstlarMain() {
+        if (location.pathname === '/' || location.pathname === '') return;
+        buildUI();
+        startTimer();
+        startWait(function () {
+            setStatus('Starting boosts...');
+            var clicked = {};
+            var skip = ['unlock link'];
+            var iv = setInterval(function () {
+                try {
+                    var btns = document.querySelectorAll('button, a');
+                    var unlock = null;
+                    var anchors = document.querySelectorAll('a[href]');
+                    for (var j = 0; j < anchors.length; j++) {
+                        var hh = anchors[j].getAttribute('href') || '';
+                        if (/^https?:\/\//i.test(hh) && hh.indexOf(location.hostname) === -1
+                            && hh.indexOf('youtube.com') === -1 && hh.indexOf('youtu.be') === -1
+                            && hh.indexOf('spotify.com') === -1 && hh.indexOf('instagram.com') === -1
+                            && hh.indexOf('twitter.com') === -1 && hh.indexOf('x.com') === -1) {
+                            clearInterval(iv); stopTimer(); setStatus('Bypass completed!'); setSpinner(false); setRefresh(false);
+                            log('bstlar_dest', hh);
+                            return void Se(hh);
+                        }
+                    }
+                    for (var i = 0; i < btns.length; i++) {
+                        var b = btns[i], t = (b.textContent || '').trim();
+                        if (/unlock link/i.test(t)) { unlock = b; }
+                        else if (/boost|like &|comment|subscribe|notifications|click on ad|visit|follow|start task/i.test(t) && !clicked[t]) {
+                            clicked[t] = 1;
+                            try { b.click(); } catch (e) {}
+                        }
+                    }
+                    if (unlock) {
+                        var pa = unlock.closest ? unlock.closest('a') : null;
+                        var href = pa ? pa.getAttribute('href') : '';
+                        if (!unlock.disabled) {
+                            if (/^https?:\/\//i.test(href) && href.indexOf(location.hostname) === -1) {
+                                clearInterval(iv); stopTimer(); setStatus('Bypass completed!'); setSpinner(false); setRefresh(false);
+                                log('bstlar_dest', href);
+                                return void Se(href);
+                            }
+                            try { unlock.click(); } catch (e) {}
+                        }
+                    }
+                } catch (e) {}
+            }, 1500);
+            setTimeout(function () { clearInterval(iv); failUI('Tasks incomplete. Please refresh.'); }, 90000);
+        });
+    }
 
     
     var pn = location.pathname;

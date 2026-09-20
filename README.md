@@ -12,6 +12,7 @@ Install `src/cobalt.user.js`. Plain source in `src/cobalt.js`.
 | rekonise | rekonise.com |
 | lockr | lockr.net, lockr.so |
 | bstshrt | bstshrt.com, mboost.me, bst.gg, booo.st |
+| bstlar | bstlar.com, boostellar.com |
 | linkvertise | linkvertise.com |
 | ouo | ouo.io, ouo.press |
 | sub4unlock | sub4unlock.com / .io, subfinal.com, sub2unlock.com, ytsubme.com |
